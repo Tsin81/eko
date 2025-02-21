@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         }
       }
     } catch (e) {
-      console.log('onMessage error', e);
+      console.log('onMessage 发生错误', e);
       sendResponse(false);
     }
   })();
@@ -316,7 +316,7 @@ function select_dropdown_option(request: any): any {
     ).singleNodeValue as any;
   }
   if (!select || select.tagName.toUpperCase() !== 'SELECT') {
-    return { success: false, error: 'Select not found or invalid element type' };
+    return { success: false, error: '选择未找到或元素类型无效' };
   }
   const option = Array.from(select.options).find(
     (opt: any) => opt.text.trim() === request.text
@@ -324,7 +324,7 @@ function select_dropdown_option(request: any): any {
   if (!option) {
     return {
       success: false,
-      error: 'Option not found',
+      error: '选择未找到',
       availableOptions: Array.from(select.options).map((o: any) => o.text.trim()),
     };
   }
@@ -436,7 +436,7 @@ function request_user_help(task_id: string, failure_type: string, failure_messag
     color: #DD342D;
     text-align: left;
   `;
-  message2.innerText = failure_message + '\nWhen you resolve the issue, click the button below.';
+  message2.innerText = failure_message + '\n问题解决后，请单击下面的按钮。';
 
   const buttonDiv = document.createElement('div');
   buttonDiv.style.cssText = `
@@ -448,7 +448,7 @@ function request_user_help(task_id: string, failure_type: string, failure_messag
   `;
 
   const resolvedBut = document.createElement('div');
-  resolvedBut.innerText = 'Resolved';
+  resolvedBut.innerText = '已解决';
   resolvedBut.style.cssText = `
     border-radius: 8px;
     background: #DD342D;

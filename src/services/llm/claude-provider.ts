@@ -36,13 +36,11 @@ export class ClaudeProvider implements LLMProvider {
       (typeof param == 'string' || param.apiKey)
     ) {
       console.warn(`
-        ⚠️ Security Warning:
-        DO NOT use API Keys in browser/frontend code!
-        This will expose your credentials and may lead to unauthorized usage.
-        
-        Best Practices: Configure backend API proxy request through baseURL and request headers.
-
-        Please refer to the link: https://eko.fellou.ai/docs/getting-started/configuration#web-environment
+        ⚠️ 安全警告：
+        切勿在浏览器/前端代码中使用 API 密钥！
+        这会暴露您的凭据，并可能导致未经授权的使用。
+        最佳实践： 通过 baseURL 和请求标头配置后台 API 代理请求。
+        请参考链接：https://eko.fellou.ai/docs/getting-started/configuration#web-environment
       `);
     }
     if (typeof param == 'string') {

@@ -46,6 +46,6 @@ export interface Action {
   name: string;
   description: string;
   execute: (input: NodeInput, output: NodeOutput, context: ExecutionContext) => Promise<unknown>;
-  tools: Array<Tool<any, any>>; // Allow both Tool objects and tool names
+  tools: Array<Tool<any, any>>; // 允许同时使用工具对象和工具名称
   llmProvider?: LLMProvider;
 }

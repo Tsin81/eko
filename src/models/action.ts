@@ -1,5 +1,3 @@
-// src/models/action.ts
-
 import { Action, Tool, ExecutionContext, InputSchema } from '../types/action.types';
 import { NodeInput, NodeOutput } from '../types/workflow.types';
 import {
@@ -13,22 +11,22 @@ import {
 import { ExecutionLogger } from '@/utils/execution-logger';
 
 /**
- * Special tool that allows LLM to write values to context
+ * 允许 LLM 将值写入上下文的特殊工具
  */
 class WriteContextTool implements Tool<any, any> {
   name = 'write_context';
   description =
-    'Write a value to the global workflow context. Use this to store important intermediate results, but only when a piece of information is essential for future reference but missing from the final output specification of the current action.';
+    '将值写入全局工作流上下文。使用它来存储重要的中间结果，但仅当某条信息对于将来的参考是必不可少的，但在当前操作的最终输出规范中缺少时才使用。';
   input_schema = {
     type: 'object',
     properties: {
       key: {
         type: 'string',
-        description: 'The key to store the value under',
+        description: '要在其下存储值的键',
       },
       value: {
         type: 'string',
-        description: 'The value to store (must be JSON stringified if object/array)',
+        description: '要存储的值（如果是对象/数组，则必须使用 JSON 字符串）',
       },
     },
     required: ['key', 'value'],
@@ -37,11 +35,11 @@ class WriteContextTool implements Tool<any, any> {
   async execute(context: ExecutionContext, params: unknown): Promise<unknown> {
     const { key, value } = params as { key: string; value: string };
     try {
-      // Try to parse the value as JSON
+      // 尝试将值解析为 JSON 格式
       const parsedValue = JSON.parse(value);
       context.variables.set(key, parsedValue);
     } catch {
-      // If parsing fails, store as string
+      // 如果解析失败，则存储为字符串
       context.variables.set(key, value);
     }
     return { success: true, key, value };
@@ -55,23 +53,23 @@ function createReturnTool(
 ): Tool<any, any> {
   return {
     name: 'return_output',
-    description: `Return the final output of this action. Use this to return a value matching the required output schema (if specified) and the following description:
+    description: `返回此操作的最终输出。使用此操作返回符合所需输出 schema（如果指定）和以下描述的值：
       ${outputDescription}
 
-      You can either set 'use_tool_result=true' to return the result of a previous tool call, or explicitly specify 'value' with 'use_tool_result=false' to return a value according to your own understanding. Whenever possible, reuse tool results to avoid redundancy.
+      你可以选择将 'use_tool_result=true' 设置为返回之前工具调用的结果，或者显式指定 'value' 并将 'use_tool_result=false' 设置为根据您的理解返回值。尽可能重用工具结果以避免冗余。
       `,
     input_schema: {
       type: 'object',
       properties: {
         use_tool_result: {
           type: ['boolean'],
-          description: `Whether to use the latest tool result as output. When set to true, the 'value' parameter is ignored.`,
+          description: `是否使用最新的工具结果作为输出。当设置为 true 时，'value' 参数将被忽略。`,
         },
         value: outputSchema || {
-          // Default to accepting any JSON value
+          // 默认接受任何 JSON 值
           type: ['string', 'number', 'boolean', 'object', 'null'],
           description:
-            'The output value. Only provide a value if the previous tool result is not suitable for the output description. Otherwise, leave this as null.',
+            '输出值。只有在前一个工具结果不适合输出描述时才提供一个值。否则，该值为空。',
         },
       } as unknown,
       required: ['use_tool_result', 'value'],
@@ -85,13 +83,13 @@ function createReturnTool(
 }
 
 export class ActionImpl implements Action {
-  private readonly maxRounds: number = 10; // Default max rounds
+  private readonly maxRounds: number = 10; // 默认最大轮数
   private writeContextTool: WriteContextTool;
   private toolResults: Map<string, any> = new Map();
   private logger: ExecutionLogger = new ExecutionLogger();
 
   constructor(
-    public type: 'prompt', // Only support prompt type
+    public type: 'prompt', // 仅支持提示类型
     public name: string,
     public description: string,
     public tools: Tool<any, any>[],
@@ -121,15 +119,15 @@ export class ActionImpl implements Action {
     let hasToolUse = false;
     let response: LLMResponse | null = null;
 
-    // Buffer to collect into roundMessages
+    // 收集到 roundMessages 的缓冲区
     let assistantTextMessage = '';
     let toolUseMessage: Message | null = null;
     let toolResultMessage: Message | null = null;
 
-    // Track tool execution promise
+    // 追踪工具执行 promise
     let toolExecutionPromise: Promise<void> | null = null;
 
-    // Listen for abort signal
+    // 监听终止信号
     if (context.signal) {
       context.signal.addEventListener('abort', () => {
         context.__abort = true;
@@ -143,13 +141,13 @@ export class ActionImpl implements Action {
         }
       },
       onToolUse: async (toolCall) => {
-        this.logger.log('info', `Assistant: ${assistantTextMessage}`);
+        this.logger.log('info', `助手：${assistantTextMessage}`);
         this.logger.logToolExecution(toolCall.name, toolCall.input, context);
         hasToolUse = true;
 
         const tool = toolMap.get(toolCall.name);
         if (!tool) {
-          throw new Error(`Tool not found: ${toolCall.name}`);
+          throw new Error(`工具未找到：${toolCall.name}`);
         }
 
         toolUseMessage = {
@@ -164,10 +162,10 @@ export class ActionImpl implements Action {
           ],
         };
 
-        // Store the promise of tool execution
+        // 存储工具执行 promise
         toolExecutionPromise = (async () => {
           try {
-            // beforeToolUse
+            // 使用工具前
             context.__skip = false;
             if (context.callback && context.callback.hooks.beforeToolUse) {
               let modified_input = await context.callback.hooks.beforeToolUse(
@@ -186,15 +184,15 @@ export class ActionImpl implements Action {
                   {
                     type: 'tool_result',
                     tool_use_id: toolCall.id,
-                    content: 'skip',
+                    content: '跳过',
                   },
                 ],
               };
               return;
             }
-            // Execute the tool
+            // 执行工具
             let result = await tool.execute(context, toolCall.input);
-            // afterToolUse
+            // 使用工具后
             if (context.callback && context.callback.hooks.afterToolUse) {
               let modified_result = await context.callback.hooks.afterToolUse(
                 tool,
@@ -236,21 +234,21 @@ export class ActionImpl implements Action {
             };
             toolResultMessage = resultMessage;
             this.logger.logToolResult(tool.name, result, context);
-            // Store tool results except for the return_output tool
+            // 存储除 return_output 工具之外的工具结果
             if (tool.name !== 'return_output') {
               this.toolResults.set(toolCall.id, resultContentText);
             }
           } catch (err) {
-            console.log("An error occurred when calling tool:");
+            console.log("调用工具时发生错误：");
             console.log(err);
-            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            const errorMessage = err instanceof Error ? err.message : '发生未知错误';
             const errorResult: Message = {
               role: 'user',
               content: [
                 {
                   type: 'tool_result',
                   tool_use_id: toolCall.id,
-                  content: [{ type: 'text', text: `Error: ${errorMessage}` }],
+                  content: [{ type: 'text', text: `错误：${errorMessage}` }],
                   is_error: true,
                 },
               ],
@@ -264,20 +262,20 @@ export class ActionImpl implements Action {
         response = llmResponse;
       },
       onError: (error) => {
-        console.error('Stream Error:', error);
-        console.log('Last message array sent to LLM:', JSON.stringify(messages, null, 2));
+        console.error('流错误：', error);
+        console.log('向 LLM 发送最后一个信息阵列：', JSON.stringify(messages, null, 2));
       },
     };
 
     this.handleHistoryImageMessages(messages);
 
-    // Wait for stream to complete
+    // 等待信息流完成
     if (!this.llmProvider) {
-      throw new Error('LLM provider not set');
+      throw new Error('未设置 LLM 提供商');
     }
     await this.llmProvider.generateStream(messages, params, handler);
 
-    // Wait for tool execution to complete if it was started
+    // 如果工具已启动，则等待工具执行完毕
     if (toolExecutionPromise) {
       await toolExecutionPromise;
     }
@@ -286,7 +284,7 @@ export class ActionImpl implements Action {
       throw new Error('Abort');
     }
 
-    // Add messages in the correct order after everything is complete
+    // 一切完成后，按正确顺序添加信息
     if (assistantTextMessage) {
       roundMessages.push({ role: 'assistant', content: assistantTextMessage });
     }
@@ -301,7 +299,7 @@ export class ActionImpl implements Action {
   }
 
   private handleHistoryImageMessages(messages: Message[]) {
-    // Remove all images from historical tool results except the most recent user message
+    // 从历史工具结果中删除所有图像，最新用户信息除外
     const initialImageCount = this.countImages(messages);
 
     let foundFirstUser = false;
@@ -315,13 +313,13 @@ export class ActionImpl implements Action {
         }
 
         if (Array.isArray(message.content)) {
-          // Directly modify the message content array
+          // 直接修改信息内容数组
           message.content = message.content.map((item: any) => {
             if (item.type === 'tool_result' && Array.isArray(item.content)) {
-              // Create a new content array without images
+              // 创建不含图像的新内容数组
               if (item.content.length > 0) {
                 item.content = item.content.filter((c: any) => c.type !== 'image');
-                // If all content was images and got filtered out, replace with ok message
+                // 如果所有内容都是图像并被过滤掉，则用 “ok” 信息代替
                 if (item.content.length === 0) {
                   item.content = [{ type: 'text', text: 'ok' }];
                 }
@@ -335,7 +333,7 @@ export class ActionImpl implements Action {
 
     const finalImageCount = this.countImages(messages);
     if (initialImageCount !== finalImageCount) {
-      this.logger.log("info", `Removed ${initialImageCount - finalImageCount} images from history`);
+      this.logger.log("info", `已从历史记录删除 ${initialImageCount - finalImageCount} 张图像`);
     }
   }
 
@@ -360,17 +358,17 @@ export class ActionImpl implements Action {
     outputSchema?: unknown
   ): Promise<unknown> {
     this.logger = context.logger;
-    console.log(`Executing action started: ${this.name}`);
-    // Create return tool with output schema
+    console.log(`开始执行操作：${this.name}`);
+    // 创建带有输出 schema 的返回工具
     const returnTool = createReturnTool(this.name, output.description, outputSchema);
 
-    // Create tool map combining context tools, action tools, and return tool
+    // 创建工具地图，将上下文工具、操作工具和返回工具结合起来
     const toolMap = new Map<string, Tool<any, any>>();
     this.tools.forEach((tool) => toolMap.set(tool.name, tool));
     context.tools?.forEach((tool) => toolMap.set(tool.name, tool));
     toolMap.set(returnTool.name, returnTool);
 
-    // Prepare initial messages
+    // 准备初始信息
     const messages: Message[] = [
       { role: 'system', content: this.formatSystemPrompt() },
       { role: 'user', content: this.formatUserPrompt(context, input) },
@@ -378,7 +376,7 @@ export class ActionImpl implements Action {
 
     this.logger.logActionStart(this.name, input, context);
 
-    // Configure tool parameters
+    // 配置工具参数
     const params: LLMParameters = {
       ...this.llmConfig,
       tools: Array.from(toolMap.values()).map((tool) => ({
@@ -392,13 +390,13 @@ export class ActionImpl implements Action {
     let lastResponse: LLMResponse | null = null;
 
     while (roundCount < this.maxRounds) {
-      // Check for abort signal
+      // 检查终止信号
       if (context.signal?.aborted) {
-        throw new Error('Workflow cancelled');
+        throw new Error('取消工作流程');
       }
 
       roundCount++;
-      this.logger.log('info', `Starting round ${roundCount} of ${this.maxRounds}`, context);
+      this.logger.log('info', `开始第 ${roundCount}/${this.maxRounds} 轮次`, context);
 
       const { response, hasToolUse, roundMessages } = await this.executeSingleRound(
         messages,
@@ -413,19 +411,19 @@ export class ActionImpl implements Action {
 
       lastResponse = response;
 
-      // Add round messages to conversation history
+      // 将轮次信息添加到对话历史记录
       messages.push(...roundMessages);
       this.logger.log(
         'debug',
-        `Round ${roundCount} messages: ${JSON.stringify(roundMessages)}`,
+        `第 ${roundCount} 轮次信息：${JSON.stringify(roundMessages)}`,
         context
       );
 
       // Check termination conditions
       if (!hasToolUse && response) {
         // LLM sent a message without using tools - request explicit return
-        this.logger.log('info', `Assistant: ${response.textContent}`);
-        this.logger.log('warn', 'LLM sent a message without using tools; requesting explicit return');
+        this.logger.log('info', `助手：${response.textContent}`);
+        this.logger.log('warn', 'LLM 发送了一条未使用工具的消息；要求显示返回');
         const returnOnlyParams = {
           ...params,
           tools: [
@@ -440,7 +438,7 @@ export class ActionImpl implements Action {
         messages.push({
           role: 'user',
           content:
-            'Please process the above information and return a final result using the return_output tool.',
+            '请使用 return_output 工具处理上述信息并返回最终结果。',
         });
 
         const { roundMessages: finalRoundMessages } = await this.executeSingleRound(
@@ -457,9 +455,9 @@ export class ActionImpl implements Action {
         break;
       }
 
-      // If this is the last round, force an explicit return
+      // 如果这是最后一轮，则强制显式返回
       if (roundCount === this.maxRounds) {
-        this.logger.log('warn', 'Max rounds reached, requesting explicit return');
+        this.logger.log('warn', '达到最大轮数，要求显示返回');
         const returnOnlyParams = {
           ...params,
           tools: [
@@ -474,7 +472,7 @@ export class ActionImpl implements Action {
         messages.push({
           role: 'user',
           content:
-            'Maximum number of steps reached. Please return the best result possible with the return_output tool.',
+            '达到最大步数。请使用 return_output 工具尽可能返回最佳结果。',
         });
 
         const { roundMessages: finalRoundMessages } = await this.executeSingleRound(
@@ -487,18 +485,18 @@ export class ActionImpl implements Action {
       }
     }
 
-    // Get and clean up output value
+    // 获取并清除输出值
     const outputKey = `__action_${this.name}_output`;
     const outputParams = context.variables.get(outputKey) as any;
     context.variables.delete(outputKey);
 
-    // Get output value, first checking for use_tool_result
+    // 获取输出值，首先检查 use_tool_result
     const outputValue = outputParams.use_tool_result
       ? Array.from(this.toolResults.values()).pop()
       : outputParams?.value;
 
     if (outputValue === undefined) {
-      console.warn('Action completed without returning a value');
+      console.warn('操作已完成，但未返回值');
       return {};
     }
 
@@ -506,15 +504,15 @@ export class ActionImpl implements Action {
   }
 
   private formatSystemPrompt(): string {
-    return `You are a subtask executor. You need to complete the subtask specified by the user, which is a consisting part of the overall task. Help the user by calling the tools provided.
+    return `你是一个子任务执行者。你需要完成用户指定的子任务，该子任务是整体任务的组成部分。通过调用提供的工具来协助用户完成任务。
 
-    Remember to:
-    1. Use tools when needed to accomplish the task
-    2. Think step by step about what needs to be done
-    3. Return the output of the subtask using the 'return_output' tool when you are done; prefer using the 'tool_use_id' parameter to refer to the output of a tool call over providing a long text as the value
-    4. Use the context to store important information for later reference, but use it sparingly: most of the time, the output of the subtask should be sufficient for the next steps
-    5. If there are any unclear points during the task execution, please use the human-related tool to inquire with the user
-    6. If user intervention is required during the task execution, please use the human-related tool to transfer the operation rights to the user
+    需注意以下事项：
+    1. 在需要时使用工具以完成任务
+    2. 逐步思考需要完成的具体步骤
+    3. 任务完成后使用 return_output 工具返回子任务输出（建议优先使用 tool_use_id 参数引用工具调用结果，而非直接提供长文本内容作为值）
+    4. 使用上下文(context)存储重要信息以供后续参考，但需谨慎使用：多数情况下，子任务的输出结果应足以支持后续步骤
+    5. 如果在任务执行过程中有任何不明确之处，请使用与人工相关的工具（the human-related tool）向用户询问
+    6. 若任务执行过程中需要人工介入，请使用与人工相关的工具（the human-related tool）将操作权限转交给用户
     `;
   }
 
@@ -526,21 +524,21 @@ export class ActionImpl implements Action {
       .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
       .join('\n');
 
-    return `You are executing a subtask in the workflow. The workflow description is as follows:
+    return `你正在执行工作流程中的一个子任务。工作流程的描述如下：
     ${workflowDescription}
 
-    The subtask description is as follows:
+    子任务描述如下：
     ${actionDescription}
 
-    The input to the subtask is as follows:
+    子任务的输入如下：
     ${inputDescription}
 
-    There are some variables stored in the context that you can use for reference:
+    上下文中存储了一些变量，可以用来参考：
     ${contextVariables}
     `;
   }
 
-  // Static factory method
+  // 静态工厂方法
   static createPromptAction(
     name: string,
     description: string,

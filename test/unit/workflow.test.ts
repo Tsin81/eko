@@ -1,7 +1,7 @@
 import { WorkflowImpl } from '../../src/models/workflow';
 import { WorkflowNode, Action, Tool, ExecutionContext, EkoConfig } from '../../src/types';
 
-describe('WorkflowImpl', () => {
+describe('工作流模板', () => {
   let workflow: WorkflowImpl;
 
   beforeEach(() => {
@@ -16,43 +16,43 @@ describe('WorkflowImpl', () => {
     id,
     name: `Node ${id}`,
     input: { items: [] },
-    output: { name: "mock_output", description: "mock output", value: null },
+    output: { name: "mock_output", description: "模拟输出", value: null },
     dependencies,
     action: {
       type: 'script',
       name: 'test',
-      description: 'test',
+      description: '测试',
       tools: [],
-      execute: async () => ({ result: `Executed ${id}` }),
+      execute: async () => ({ result: `已执行 ${id}` }),
     }
   });
 
-  describe('node management', () => {
-    test('should add node successfully', () => {
+  describe('节点管理', () => {
+    test('应成功添加节点', () => {
       const node = createMockNode('node1');
       workflow.addNode(node);
       expect(workflow.nodes).toHaveLength(1);
       expect(workflow.getNode('node1')).toBe(node);
     });
 
-    test('should throw when adding duplicate node', () => {
+    test('添加重复节点时应抛出', () => {
       const node = createMockNode('node1');
       workflow.addNode(node);
       expect(() => workflow.addNode(node)).toThrow();
     });
 
-    test('should remove node successfully', () => {
+    test('应能成功移除节点', () => {
       const node = createMockNode('node1');
       workflow.addNode(node);
       workflow.removeNode('node1');
       expect(workflow.nodes).toHaveLength(0);
     });
 
-    test('should throw when removing non-existent node', () => {
+    test('删除不存在的节点时应抛出', () => {
       expect(() => workflow.removeNode('nonexistent')).toThrow();
     });
 
-    test('should throw when removing node with dependents', () => {
+    test('删除有依赖节点时应抛出', () => {
       const node1 = createMockNode('node1');
       const node2 = createMockNode('node2', ['node1']);
       workflow.addNode(node1);
@@ -61,8 +61,8 @@ describe('WorkflowImpl', () => {
     });
   });
 
-  describe('DAG validation', () => {
-    test('should detect simple cycle', () => {
+  describe('DAG 校验', () => {
+    test('应检测简单循环', () => {
       const node1 = createMockNode('node1', ['node2']);
       const node2 = createMockNode('node2', ['node1']);
       workflow.addNode(node1);
@@ -70,7 +70,7 @@ describe('WorkflowImpl', () => {
       expect(workflow.validateDAG()).toBe(false);
     });
 
-    test('should validate acyclic graph', () => {
+    test('应验证非循环图', () => {
       const node1 = createMockNode('node1');
       const node2 = createMockNode('node2', ['node1']);
       const node3 = createMockNode('node3', ['node1', 'node2']);
@@ -81,8 +81,8 @@ describe('WorkflowImpl', () => {
     });
   });
 
-  describe('execution', () => {
-    test('should execute nodes in correct order', async () => {
+  describe('执行', () => {
+    test('应按正确顺序执行节点', async () => {
       const executed: string[] = [];
 
       const createExecutableNode = (id: string, dependencies: string[] = []): WorkflowNode => ({
@@ -90,11 +90,11 @@ describe('WorkflowImpl', () => {
         action: {
           type: 'script',
           name: 'test',
-          description: 'test',
+          description: '测试',
           tools: [],
           execute: async () => {
             executed.push(id);
-            return { result: `Executed ${id}` };
+            return { result: `已执行 ${id}` };
           }
         }
       });
@@ -112,7 +112,7 @@ describe('WorkflowImpl', () => {
       expect(executed).toEqual(['node1', 'node2', 'node3']);
     });
 
-    test('should throw on cyclic dependencies during execution', async () => {
+    test('应在执行过程中抛出循环依赖', async () => {
       const node1 = createMockNode('node1', ['node2']);
       const node2 = createMockNode('node2', ['node1']);
       workflow.addNode(node1);

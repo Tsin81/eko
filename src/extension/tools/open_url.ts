@@ -3,7 +3,7 @@ import { Tool, InputSchema, ExecutionContext } from '../../types/action.types';
 import { getWindowId, open_new_tab } from '../utils';
 
 /**
- * Open Url
+ * 打开 Url
  */
 export class OpenUrl implements Tool<OpenUrlParam, OpenUrlResult> {
   name: string;
@@ -12,17 +12,17 @@ export class OpenUrl implements Tool<OpenUrlParam, OpenUrlResult> {
 
   constructor() {
     this.name = 'open_url';
-    this.description = 'Open the specified URL link in browser window';
+    this.description = '在浏览器窗口中打开指定的 URL 链接';
     this.input_schema = {
       type: 'object',
       properties: {
         url: {
           type: 'string',
-          description: 'URL link address',
+          description: 'URL 链接地址',
         },
         newWindow: {
           type: 'boolean',
-          description: 'true: Open in a new window; false: Open in the current window.',
+          description: 'true：在新窗口中打开；false：在当前窗口中打开。',
         },
       },
       required: ['url'],
@@ -30,21 +30,21 @@ export class OpenUrl implements Tool<OpenUrlParam, OpenUrlResult> {
   }
 
   /**
-   * Open Url
+   * 打开 Url
    *
    * @param {*} params { url: 'https://www.google.com', newWindow: true }
    * @returns > { tabId, windowId, title, success: true }
    */
-  async execute(context: ExecutionContext, params: OpenUrlParam): Promise<OpenUrlResult> {    
+  async execute(context: ExecutionContext, params: OpenUrlParam): Promise<OpenUrlResult> {
     if (typeof params !== 'object' || params === null || !params.url) {
-      throw new Error('Invalid parameters. Expected an object with a "url" property.');
+      throw new Error('参数无效。期望对象具有 “url” 属性。');
     }
     let url = params.url;
     let newWindow = params.newWindow;
     if (context.ekoConfig.workingWindowId) {
       newWindow = false;
     } else if (!newWindow && !context.variables.get('windowId') && !context.variables.get('tabId')) {
-      // First mandatory opening of a new window
+      // 首次强制打开新窗口
       newWindow = true;
     }
     let tab: chrome.tabs.Tab;

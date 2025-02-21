@@ -5,7 +5,7 @@ import { left_click, screenshot } from './browser';
 import { TaskPrompt } from '../../types/tools.types';
 
 /**
- * Element click
+ * 元素点击
  */
 export class ElementClick implements Tool<TaskPrompt, any> {
   name: string;
@@ -14,13 +14,13 @@ export class ElementClick implements Tool<TaskPrompt, any> {
 
   constructor() {
     this.name = 'element_click';
-    this.description = 'Click the element through task prompts';
+    this.description = '通过任务提示点击元素';
     this.input_schema = {
       type: 'object',
       properties: {
         task_prompt: {
           type: 'string',
-          description: 'Task prompt, eg: click search button',
+          description: '任务提示，例如：点击搜索按钮',
         },
       },
       required: ['task_prompt'],
@@ -29,7 +29,7 @@ export class ElementClick implements Tool<TaskPrompt, any> {
 
   async execute(context: ExecutionContext, params: TaskPrompt): Promise<any> {
     if (typeof params !== 'object' || params === null || !params.task_prompt) {
-      throw new Error('Invalid parameters. Expected an object with a "task_prompt" property.');
+      throw new Error('参数无效。期望对象具有 “task_prompt” 属性。');
     }
     let result;
     let task_prompt = params.task_prompt;
@@ -54,17 +54,17 @@ async function executeWithHtmlElement(
   let messages: Message[] = [
     {
       role: 'user',
-      content: `# Task
-Determine the operation intent based on user input, find the element ID that the user needs to operate on in the webpage HTML, and if the element does not exist, do nothing.
-Output JSON format, no explanation required.
+      content: `# 任务
+根据用户输入确定操作意图，在网页HTML中找到需要操作的元素ID，若元素不存在则无需执行任何操作。
+输出JSON格式，无需解释说明。
 
-# User input
+# 用户输入
 ${task_prompt}
 
-# Output example (when the element exists)
+# 输出示例（当元素存在时）
 {"elementId": "1", "operationType": "click"}
 
-# Output example (when the element does not exist)
+# 输出示例（当元素不存在时）
 {"elementId": null, "operationType": "unknown"}
 
 # HTML
@@ -74,8 +74,7 @@ ${pseudoHtml}
   ];
   let llm_params: LLMParameters = { maxTokens: 1024 };
   let response = await context.llmProvider.generateText(messages, llm_params);
-  let content =
-    typeof response.content == 'string' ? response.content : (response.content as any[])[0].text;
+  let content = typeof response.content == 'string' ? response.content : (response.content as any[])[0].text;
   let json = content.substring(content.indexOf('{'), content.indexOf('}') + 1);
   let elementId = JSON.parse(json).elementId;
   if (elementId) {
@@ -113,14 +112,14 @@ async function executeWithBrowserUse(
     tools: [
       {
         name: 'left_click',
-        description: 'click element',
+        description: '单击元素',
         input_schema: {
           type: 'object',
           properties: {
             coordinate: {
               type: 'array',
               description:
-                '(x, y): The x (pixels from the left edge) and y (pixels from the top edge) coordinates.',
+                '(x, y)：x（与左边缘的像素距离）与 y（与顶边缘的像素距离）的坐标。',
             },
           },
           required: ['coordinate'],

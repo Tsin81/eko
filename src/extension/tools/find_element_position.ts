@@ -6,7 +6,7 @@ import { extractOperableElements, getOperableElementRect } from './html_script';
 import { screenshot } from './browser';
 
 /**
- * Find Element Position
+ * 查找元素位置
  */
 export class FindElementPosition implements Tool<TaskPrompt, ElementRect | null> {
   name: string;
@@ -15,13 +15,13 @@ export class FindElementPosition implements Tool<TaskPrompt, ElementRect | null>
 
   constructor() {
     this.name = 'find_element_position';
-    this.description = 'Locate Element Coordinates through Task Prompts';
+    this.description = '通过任务提示定位元素坐标';
     this.input_schema = {
       type: 'object',
       properties: {
         task_prompt: {
           type: 'string',
-          description: 'Task prompt, eg: find the search input box',
+          description: '任务提示，例如：找到搜索输入框',
         },
       },
       required: ['task_prompt'],
@@ -30,7 +30,7 @@ export class FindElementPosition implements Tool<TaskPrompt, ElementRect | null>
 
   async execute(context: ExecutionContext, params: TaskPrompt): Promise<ElementRect | null> {
     if (typeof params !== 'object' || params === null || !params.task_prompt) {
-      throw new Error('Invalid parameters. Expected an object with a "task_prompt" property.');
+      throw new Error('参数无效。期望对象具有 “task_prompt” 属性。');
     }
     let result: ElementRect | null;
     let task_prompt = params.task_prompt;
@@ -56,17 +56,17 @@ async function executeWithHtmlElement(
   let messages: Message[] = [
     {
       role: 'user',
-      content: `# Task
-Find the element ID that the user needs to operate on in the webpage HTML, and if the element does not exist, do nothing.
-Output JSON format, no explanation required.
+      content: `# 任务
+根据用户输入确定操作意图，在网页HTML中找到需要操作的元素ID，若元素不存在则无需执行任何操作。
+输出JSON格式，无需解释说明。
 
-# User input
+# 用户输入
 ${task_prompt}
 
-# Output example (when the element exists)
+# 输出示例（当元素存在时）
 {"elementId": "1"}
 
-# Output example (when the element does not exist)
+# 输出示例（当元素不存在时）
 {"elementId": null}
 
 # HTML
@@ -103,7 +103,7 @@ async function executeWithBrowserUse(
         },
         {
           type: 'text',
-          text: 'Find the element: ' + task_prompt,
+          text: '找到元素：' + task_prompt,
         },
       ],
     },
@@ -117,14 +117,14 @@ async function executeWithBrowserUse(
     tools: [
       {
         name: 'get_element_by_coordinate',
-        description: 'Retrieve element information based on coordinate',
+        description: '根据坐标检索元素信息',
         input_schema: {
           type: 'object',
           properties: {
             coordinate: {
               type: 'array',
               description:
-                '(x, y): The x (pixels from the left edge) and y (pixels from the top edge) coordinates.',
+                '(x, y)：x（与左边缘的像素距离）与 y（与顶边缘的像素距离）的坐标。',
             },
           },
           required: ['coordinate'],

@@ -17,13 +17,13 @@ export class HumanInputText implements Tool<HumanInputTextInput, HumanInputTextR
 
   constructor() {
     this.name = 'human_input_text';
-    this.description = 'When you are unsure about the details of your next action, call me and ask the user for details in the "question" field. The user will provide you with a text as an answer.';
+    this.description = '当你不确定下一步行动的细节时，请调用此工具并在“question”字段中向用户询问详细信息。用户将提供文本作为答复。';
     this.input_schema = {
       type: 'object',
       properties: {
         question: {
           type: 'string',
-          description: 'Ask the user here.',
+          description: '在这里询问用户。',
         },
       },
       required: ['question'],
@@ -32,16 +32,16 @@ export class HumanInputText implements Tool<HumanInputTextInput, HumanInputTextR
 
   async execute(context: ExecutionContext, params: HumanInputTextInput): Promise<HumanInputTextResult> {
     if (typeof params !== 'object' || params === null || !params.question) {
-      throw new Error('Invalid parameters. Expected an object with a "question" property.');
+      throw new Error('参数无效。期望对象具有 “question” 属性。');
     }
     const question = params.question;
-    console.log("question: " + question);
+    console.log("问题：" + question);
     let answer = await context.callback?.hooks.onHumanInputText?.(question);
     if (!answer) {
-      console.error("Cannot get user's answer.");
-      return {status: "Error: Cannot get user's answer.", answer: ""};
+      console.error("无法获取用户答复。");
+      return {status: "错误：无法获取用户答复。", answer: ""};
     } else {
-      console.log("answer: " + answer);
+      console.log("答复：" + answer);
       return {status: "OK", answer: answer};
     }
   }
@@ -54,17 +54,17 @@ export class HumanInputSingleChoice implements Tool<HumanInputSingleChoiceInput,
 
   constructor() {
     this.name = 'human_input_single_choice';
-    this.description = 'When you are unsure about the details of your next action, call me and ask the user for details in the "question" field with at least 2 choices. The user will provide you with ONE choice as an answer.';
+    this.description = '当你不确定下一步行动的细节时，请调用此工具并在“question”字段中向用户询问包含至少2个选项的详细信息。用户将提供其中一个选项作为答复。';
     this.input_schema = {
       type: 'object',
       properties: {
         question: {
           type: 'string',
-          description: 'Ask the user here.',
+          description: '在这里询问用户。',
         },
         choices: {
           type: 'array',
-          description: 'All of the choices.',
+          description: '所有选择',
         }
       },
       required: ['question', 'choices'],
@@ -73,18 +73,18 @@ export class HumanInputSingleChoice implements Tool<HumanInputSingleChoiceInput,
 
   async execute(context: ExecutionContext, params: HumanInputSingleChoiceInput): Promise<HumanInputSingleChoiceResult> {
     if (typeof params !== 'object' || params === null || !params.question || !params.choices) {
-      throw new Error('Invalid parameters. Expected an object with a "question" and "choices" property.');
+      throw new Error('参数无效。期望对象具有 “question” 和 “choices” 属性。');
     }
     const question = params.question;
     const choices = params.choices;
-    console.log("question: " + question);
-    console.log("choices: " + choices);
+    console.log("问题：" + question);
+    console.log("选择：" + choices);
     let answer = await context.callback?.hooks.onHumanInputSingleChoice?.(question, choices);
     if (!answer) {
-      console.error("Cannot get user's answer.");
-      return {status: "Error: Cannot get user's answer.", answer: ""};
+      console.error("无法获取用户答复");
+      return {status: "错误：无法获取用户答复", answer: ""};
     } else {
-      console.log("answer: " + answer);
+      console.log("答复：" + answer);
       return {status: "OK", answer: answer};
     }
   }
@@ -97,17 +97,17 @@ export class HumanInputMultipleChoice implements Tool<HumanInputMultipleChoiceIn
 
   constructor() {
     this.name = 'human_input_multiple_choice';
-    this.description = 'When you are unsure about the details of your next action, call me and ask the user for details in the "question" field with at least 2 choices. The user will provide you with ONE or MORE choice as an answer.';
+    this.description = '当你不确定下一步行动的细节时，请调用此工具并在“question”字段中向用户询问包含至少2个选项的详细信息。用户将提供一个或多个选项作为答复。';
     this.input_schema = {
       type: 'object',
       properties: {
         question: {
           type: 'string',
-          description: 'Ask the user here.',
+          description: '在这里询问用户。',
         },
         choices: {
           type: 'array',
-          description: 'All of the choices.',
+          description: '所有选择。',
         }
       },
       required: ['question', 'choices'],
@@ -116,18 +116,18 @@ export class HumanInputMultipleChoice implements Tool<HumanInputMultipleChoiceIn
 
   async execute(context: ExecutionContext, params: HumanInputMultipleChoiceInput): Promise<HumanInputMultipleChoiceResult> {
     if (typeof params !== 'object' || params === null || !params.question || !params.choices) {
-      throw new Error('Invalid parameters. Expected an object with a "question" and "choices" property.');
+      throw new Error('参数无效。期望对象具有 “question” 和 "choices" 属性。');
     }
     const question = params.question;
     const choices = params.choices;
-    console.log("question: " + question);
-    console.log("choices: " + choices);
+    console.log("问题：" + question);
+    console.log("选择：" + choices);
     let answer = await context.callback?.hooks.onHumanInputMultipleChoice?.(question, choices);
     if (!answer) {
-      console.error("Cannot get user's answer.");
-      return {status: "Error: Cannot get user's answer.", answer: []};
+      console.error("无法获取用户答复。");
+      return {status: "错误：无法获取用户答复。", answer: []};
     } else {
-      console.log("answer: " + answer);
+      console.log("答复：" + answer);
       return {status: "OK", answer: answer};
     }
   }
@@ -140,13 +140,13 @@ export class HumanOperate implements Tool<HumanOperateInput, HumanOperateResult>
 
   constructor() {
     this.name = 'human_operate';
-    this.description = 'When you encounter operations that require login, CAPTCHA verification, or other tasks that you cannot complete, please call this tool, transfer control to the user, and explain why.';
+    this.description = '当你遇到需要登录、验证码验证或其他无法独立完成的操作时，请调用此工具，将控制权转移给用户并说明原因。';
     this.input_schema = {
       type: 'object',
       properties: {
         reason: {
           type: 'string',
-          description: 'The reason why you need to transfer control.',
+          description: '你需要转移控制权的原因。',
         },
       },
       required: ['reason'],
@@ -155,16 +155,16 @@ export class HumanOperate implements Tool<HumanOperateInput, HumanOperateResult>
 
   async execute(context: ExecutionContext, params: HumanOperateInput): Promise<HumanOperateResult> {
     if (typeof params !== 'object' || params === null || !params.reason) {
-      throw new Error('Invalid parameters. Expected an object with a "reason" property.');
+      throw new Error('参数无效。预期具有 “reason” 属性。');
     }
     const reason = params.reason;
-    console.log("reason: " + reason);
+    console.log("原因：" + reason);
     let userOperation = await context.callback?.hooks.onHumanOperate?.(reason);
     if (!userOperation) {
-      console.error("Cannot get user's operation.");
-      return {status: "Error: Cannot get user's operation.", userOperation: ""};
+      console.error("无法获取用户操作。");
+      return {status: "错误：无法获取用户操作。", userOperation: ""};
     } else {
-      console.log("userOperation: " + userOperation);
+      console.log("用户操作：" + userOperation);
       return {status: "OK", userOperation: userOperation};
     }
   }

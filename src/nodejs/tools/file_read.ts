@@ -9,17 +9,17 @@ export interface FileReadParams {
 
 export class FileRead implements Tool<FileReadParams, any> {
   name = 'file_read';
-  description = 'Read content from a file';
+  description = '从文件中读取内容';
   input_schema: InputSchema = {
     type: 'object',
     properties: {
       path: {
         type: 'string',
-        description: 'Path to the file to read'
+        description: '要读取文件的路径'
       },
       encoding: {
         type: 'string',
-        description: 'File encoding (default: utf8)',
+        description: '文件编码（默认：utf8）',
         enum: ['utf8', 'ascii', 'utf16le', 'base64', 'binary']
       }
     },

@@ -8,13 +8,13 @@ export class SummaryWorkflow implements Tool<SummaryWorkflowInput, any> {
 
   constructor() {
     this.name = 'summary_workflow';
-    this.description = 'Summarize what this workflow has done from start to finish using an ordered list .';
+    this.description = '使用有序列表概括此工作流程从开始到结束所做的工作。';
     this.input_schema = {
       type: 'object',
       properties: {
         summary: {
           type: 'string',
-          description: 'Your summary in markdown format.',
+          description: '以 markdown 格式编写的摘要/总结。',
         },
       },
       required: ['summary'],
@@ -23,10 +23,10 @@ export class SummaryWorkflow implements Tool<SummaryWorkflowInput, any> {
 
   async execute(context: ExecutionContext, params: SummaryWorkflowInput): Promise<any> {
     if (typeof params !== 'object' || params === null || !params.summary) {
-      throw new Error('Invalid parameters. Expected an object with a "summary" property.');
+      throw new Error('参数无效。期望对象具有 “summary” 属性。');
     }
     const summary = params.summary;
-    console.log("summary: " + summary);
+    console.log("总结：" + summary);
     await context.callback?.hooks.onSummaryWorkflow?.(summary);
     return {status: "OK"};
   }

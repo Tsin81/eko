@@ -3,7 +3,7 @@ import { Tool, InputSchema, ExecutionContext } from '../../types/action.types';
 import { MsgEvent, CountDownLatch, sleep, injectScript } from '../utils';
 
 /**
- * Web Search
+ * 网页搜索
  */
 export class WebSearch implements Tool<WebSearchParam, WebSearchResult[]> {
   name: string;
@@ -12,17 +12,17 @@ export class WebSearch implements Tool<WebSearchParam, WebSearchResult[]> {
 
   constructor() {
     this.name = 'web_search';
-    this.description = 'Search the web based on keywords and return relevant extracted content from webpages.';
+    this.description = '根据关键字搜索网络，并从网页返回相关的提取内容。';
     this.input_schema = {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'search for keywords',
+          description: '搜索关键词',
         },
         maxResults: {
           type: 'integer',
-          description: 'Maximum search results, default 5',
+          description: '最大搜索结果，默认值为5',
         },
       },
       required: ['query'],
@@ -30,20 +30,20 @@ export class WebSearch implements Tool<WebSearchParam, WebSearchResult[]> {
   }
 
   /**
-   * search
+   * 搜索
    *
-   * @param {*} params { url: 'https://www.google.com', query: 'ai agent', maxResults: 5 }
+   * @param {*} params { url: 'https://www.bing.com', query: 'ai agent', maxResults: 5 }
    * @returns > [{ title, url, content }]
    */
   async execute(context: ExecutionContext, params: WebSearchParam): Promise<WebSearchResult[]> {
     if (typeof params !== 'object' || params === null || !params.query) {
-      throw new Error('Invalid parameters. Expected an object with a "query" property.');
+      throw new Error('参数无效。期望对象具有 “query” 属性。');
     }
     let url = params.url;
     let query = params.query;
     let maxResults = params.maxResults;
     if (!url) {
-      url = 'https://www.google.com';
+      url = 'https://www.bing.com';
     }
     let taskId = new Date().getTime() + '';
     let searchs = [{ url: url as string, keyword: query as string }];
@@ -75,7 +75,7 @@ const deepSearchInjects: {
     },
   },
   default: {
-    filename: 'google.js',
+    filename: 'bing.js',
     buildSearchUrl: function (url: string, keyword: string) {
       url = url.trim();
       let idx = url.indexOf('//');
@@ -87,7 +87,7 @@ const deepSearchInjects: {
         url = url.substring(0, idx);
       }
       keyword = 'site:' + url + ' ' + keyword;
-      return 'https://www.google.com/search?q=' + encodeURIComponent(keyword);
+      return 'https://www.bing.com/search?q=' + encodeURIComponent(keyword);
     },
   },
 };
@@ -113,7 +113,7 @@ function buildDeepSearchUrl(url: string, keyword: string) {
   };
 }
 
-// Event
+// 事件
 const tabsUpdateEvent = new MsgEvent();
 chrome.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
   await tabsUpdateEvent.publish({ tabId, changeInfo, tab });
@@ -135,7 +135,7 @@ async function deepSearch(
 ) {
   let closeWindow = false;
   if (!windowId) {
-    // open new window
+    // 打开新窗口
     let window = await chrome.windows.create({
       type: 'normal',
       state: 'maximized',
@@ -145,19 +145,19 @@ async function deepSearch(
     closeWindow = true;
   }
   windowId = windowId as number;
-  // crawler the search page details page link
+  // 抓取搜索页面的详细页面链接
   // [{ links: [{ title, url }] }]
   let detailLinkGroups = await doDetailLinkGroups(context, taskId, searchs, detailsMaxNum, windowId);
-  // crawler all details page content and comments
+  // 抓取页面内容和评论的所有详细信息
   let searchInfo = await doPageContent(context, taskId, detailLinkGroups, windowId);
   console.log('searchInfo: ', searchInfo);
-  // close window
+  // 关闭窗口
   closeWindow && chrome.windows.remove(windowId);
   return searchInfo;
 }
 
 /**
- * crawler the search page details page link
+ * 抓取搜索页面的详细页面链接
  *
  * @param {string} taskId task id
  * @param {array} searchs search list => [{ url: 'https://bing.com', keyword: 'ai' }]
@@ -176,36 +176,36 @@ async function doDetailLinkGroups(
   let countDownLatch = new CountDownLatch(searchs.length);
   for (let i = 0; i < searchs.length; i++) {
     try {
-      // script name & build search URL
+      // 脚本名称及构建搜索 URL
       const { filename, url } = buildDeepSearchUrl(searchs[i].url, searchs[i].keyword);
-      // open new Tab
+      // 打开新标签页
       let tab = await chrome.tabs.create({
         url: url,
         windowId,
       });
       context.callback?.hooks?.onTabCreated?.(tab.id as number);
       let eventId = taskId + '_' + i;
-      // monitor Tab status
+      // 监控标签页状态
       tabsUpdateEvent.addListener(async function (obj: any) {
         if (obj.tabId != tab.id) {
           return;
         }
         if (obj.changeInfo.status === 'complete') {
           tabsUpdateEvent.removeListener(eventId);
-          // inject js
+          // 注入 js
           await injectScript(tab.id as number, filename);
           await sleep(1000);
-          // crawler the search page details page
+          // 抓取搜索页面的详情页
           // { links: [{ title, url }] }
           let detailLinks: any = await chrome.tabs.sendMessage(tab.id as number, {
             type: 'page:getDetailLinks',
             keyword: searchs[i].keyword,
           });
           if (!detailLinks || !detailLinks.links) {
-            // TODO error
+            // TODO 出错
             detailLinks = { links: [] };
           }
-          console.log('detailLinks: ', detailLinks);
+          console.log('详细链接：', detailLinks);
           let links = detailLinks.links.slice(0, detailsMaxNum);
           detailLinkGroups.push({ url, links, filename });
           countDownLatch.countDown();
@@ -226,7 +226,7 @@ async function doDetailLinkGroups(
 }
 
 /**
- * page content
+ * 页面内容
  *
  * @param {string} taskId task id
  * @param {array} detailLinkGroups details page group
@@ -259,7 +259,7 @@ async function doPageContent(
 
     for (let j = 0; j < links.length; j++) {
       let link = links[j];
-      // open new tab
+      // 打开新标签页
       let tab = await chrome.tabs.create({
         url: link.url,
         windowId,
@@ -268,12 +268,12 @@ async function doPageContent(
       searchInfo.running++;
       let eventId = taskId + '_' + i + '_' + j;
 
-      // Create a timeout promise
+      // 创建超时 promise
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Page load timeout')), 10000); // Timeout after 10 seconds
+        setTimeout(() => reject(new Error('页面加载超时')), 10000); // 10 秒后超时
       });
 
-      // Create a tab monitoring promise
+      // 创建标签页监测 promise
       const monitorTabPromise = new Promise<void>(async (resolve, reject) => {
         tabsUpdateEvent.addListener(async function onTabUpdated(obj: any) {
           if (obj.tabId !== tab.id) return;
@@ -281,7 +281,7 @@ async function doPageContent(
           if (obj.changeInfo.status === 'complete') {
             tabsUpdateEvent.removeListener(eventId);
             try {
-              // Inject script and get page content
+              // 注入脚本并获取页面内容
               await injectScript(tab.id as number, filename);
               await sleep(1000);
 
@@ -289,16 +289,16 @@ async function doPageContent(
                 type: 'page:getContent',
               });
 
-              if (!result) throw new Error('No Result');
+              if (!result) throw new Error('无结果');
 
               link.content = result.content;
               link.page_title = result.title;
               searchInfo.succeed++;
-              resolve(); // Resolve the promise if successful
+              resolve(); // 如果成功，则解决 promise
             } catch (error) {
               searchInfo.failed++;
               searchInfo.failedLinks.push(link);
-              reject(error); // Reject the promise on error
+              reject(error); // 发生错误时拒绝 promise
             } finally {
               searchInfo.running--;
               countDownLatch.countDown();
@@ -310,21 +310,21 @@ async function doPageContent(
             countDownLatch.countDown();
             chrome.tabs.remove(tab.id as number);
             tabsUpdateEvent.removeListener(eventId);
-            reject(new Error('Tab unloaded')); // Reject if the tab is unloaded
+            reject(new Error('标签页卸载')); // 如果标签页卸载，则拒绝 promise
           }
         }, eventId);
       });
 
-      // Use Promise.race to enforce the timeout
+      // 使用 Promise.race 来强制超时
       try {
         await Promise.race([monitorTabPromise, timeoutPromise]);
       } catch (e) {
-        console.error(`${link.title} failed:`, e);
+        console.error(`${link.title} 错误：`, e);
         searchInfo.running--;
         searchInfo.failed++;
         searchInfo.failedLinks.push(link);
         countDownLatch.countDown();
-        chrome.tabs.remove(tab.id as number); // Clean up tab on failure
+        chrome.tabs.remove(tab.id as number); // 清理失败标签页
       }
     }
   }

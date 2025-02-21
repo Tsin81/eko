@@ -6,8 +6,8 @@ import { EkoConfig } from '@/types';
 
 export class WorkflowParser {
   /**
-   * Parse JSON string into runtime Workflow object
-   * @throws {Error} if JSON is invalid or schema validation fails
+   * 将 JSON 字符串解析为运行时工作流对象
+   * @throws {Error} 如果 JSON 无效或 schema 验证失败
    */
   static parse(json: string, ekoConfig: EkoConfig): Workflow {
     let parsed: any;
@@ -15,13 +15,13 @@ export class WorkflowParser {
     try {
       parsed = JSON.parse(json);
     } catch (e) {
-      throw new Error(`Invalid JSON: ${(e as Error).message}`);
+      throw new Error(`JSON 无效：${(e as Error).message}`);
     }
 
     const validationResult = this.validate(parsed);
     if (!validationResult.valid) {
       throw new Error(
-        `Invalid workflow: ${validationResult.errors.map((e) => e.message).join(', ')}`
+        `工作流无效：${validationResult.errors.map((e) => e.message).join(', ')}`
       );
     }
 
@@ -29,7 +29,7 @@ export class WorkflowParser {
   }
 
   /**
-   * Convert runtime Workflow object to JSON string
+   * 将运行时工作流对象转换为 JSON 字符串
    */
   static serialize(workflow: Workflow): string {
     const json = this.fromRuntime(workflow);
@@ -37,29 +37,29 @@ export class WorkflowParser {
   }
 
   /**
-   * Validate workflow JSON structure against schema
+   * 根据 schema 验证工作流 JSON 结构
    */
   static validate(json: unknown): ValidationResult {
     const errors: ValidationError[] = [];
 
-    // Basic structure validation
+    // 基本结构验证
     if (!json || typeof json !== 'object') {
       errors.push({
         type: 'schema',
-        message: 'Workflow must be an object',
+        message: '工作流程必须是一个对象',
       });
       return { valid: false, errors };
     }
 
     const workflow = json as Record<string, any>;
 
-    // Required fields validation
+    // 必填字段验证
     const requiredFields = ['id', 'name', 'nodes'];
     for (const field of requiredFields) {
       if (!(field in workflow)) {
         errors.push({
           type: 'schema',
-          message: `Missing required field: ${field}`,
+          message: `缺少必填字段：${field}`,
           path: `/${field}`,
         });
       }
@@ -69,37 +69,37 @@ export class WorkflowParser {
     if (!Array.isArray(workflow.nodes)) {
       errors.push({
         type: 'type',
-        message: 'Nodes must be an array',
+        message: '节点必须是数组',
         path: '/nodes',
       });
     } else {
       const nodeIds = new Set<string>();
 
-      // Validate each node
+      // 验证每个节点
       workflow.nodes.forEach((node: any, index: number) => {
         if (!node.id) {
           errors.push({
             type: 'schema',
-            message: `Node at index ${index} missing id`,
+            message: `索引 ${index} 处的节点缺少 ID`,
             path: `/nodes/${index}/id`,
           });
         } else {
           if (nodeIds.has(node.id)) {
             errors.push({
               type: 'reference',
-              message: `Duplicate node id: ${node.id}`,
+              message: `节点 ID 重复： ${node.id}`,
               path: `/nodes/${index}/id`,
             });
           }
           nodeIds.add(node.id);
         }
 
-        // Validate dependencies
+        // 验证依赖关系
         if (node.dependencies) {
           if (!Array.isArray(node.dependencies)) {
             errors.push({
               type: 'type',
-              message: `Dependencies must be an array for node ${node.id}`,
+              message: `节点 ${node.id} 的依赖必须是一个数组`,
               path: `/nodes/${index}/dependencies`,
             });
           } else {
@@ -107,7 +107,7 @@ export class WorkflowParser {
               if (typeof depId !== 'string') {
                 errors.push({
                   type: 'type',
-                  message: `Dependency id must be a string in node ${node.id}`,
+                  message: `依赖id 必须是节点 ${node.id} 中的字符串`,
                   path: `/nodes/${index}/dependencies`,
                 });
               }
@@ -115,32 +115,32 @@ export class WorkflowParser {
           }
         }
 
-        // Validate action
+        // 验证操作
         if (!node.action) {
           errors.push({
             type: 'schema',
-            message: `Node ${node.id} missing action`,
+            message: `节点 ${node.id} 缺少操作`,
             path: `/nodes/${index}/action`,
           });
         } else {
           if (!['prompt', 'script', 'hybrid'].includes(node.action.type)) {
             errors.push({
               type: 'type',
-              message: `Invalid action type for node ${node.id}`,
+              message: `节点 ${node.id} 的操作类型无效`,
               path: `/nodes/${index}/action/type`,
             });
           }
         }
       });
 
-      // Validate dependency references
+      // 验证依赖关系引用
       workflow.nodes.forEach((node: any) => {
         if (node.dependencies) {
           node.dependencies.forEach((depId: string) => {
             if (!nodeIds.has(depId)) {
               errors.push({
                 type: 'reference',
-                message: `Node ${node.id} references non-existent dependency: ${depId}`,
+                message: `节点 ${node.id} 引用了不存在的依赖项： ${depId}`,
                 path: `/nodes/${workflow.nodes.findIndex((n: any) => n.id === node.id)}/dependencies`,
               });
             }
@@ -171,14 +171,14 @@ export class WorkflowParser {
       }
     );
 
-    // Convert nodes
+    // 转换节点
     json.nodes.forEach((nodeJson: any) => {
       const action = ActionImpl.createPromptAction(
         nodeJson.action.name,
         nodeJson.action.description,
-        // Pass tool names as strings, they'll be resolved at execution time
+        // 以字符串形式传递工具名称，它们将在执行时解析
         nodeJson.action.tools || [],
-        undefined, // LLM provider will be injected at execution time
+        undefined, // 将在执行时注入 LLM 提供程序
         { maxTokens: 1000 }
       );
 
@@ -190,7 +190,7 @@ export class WorkflowParser {
         input: { items: [] },
         output: nodeJson.output || {
           name: `${nodeJson.name || nodeJson.id}_output`,
-          description: `Output of node ${nodeJson.name || nodeJson.id}`,
+          description: `节点 ${nodeJson.name || nodeJson.id} 的输出`,
           value: null,
         },
         action: action,
@@ -203,7 +203,7 @@ export class WorkflowParser {
   }
 
   /**
-   * Convert runtime Workflow object to JSON structure
+   * 将运行时工作流对象转换为 JSON 结构
    */
   private static fromRuntime(workflow: Workflow): unknown {
     return {

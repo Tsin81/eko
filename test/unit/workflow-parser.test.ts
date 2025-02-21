@@ -2,16 +2,16 @@ import { WorkflowParser } from '../../src/services/parser/workflow-parser';
 import { ValidationResult } from '../../src/types/parser.types';
 import { Workflow } from '../../src/types/workflow.types';
 
-describe('WorkflowParser', () => {
+describe('工作流解析', () => {
   const validWorkflowJson = {
     version: "1.0",
     id: "test-workflow",
-    name: "Test Workflow",
-    description: "A test workflow",
+    name: "测试工作流",
+    description: "一个测试工作流",
     nodes: [
       {
         id: "node1",
-        name: "First Node",
+        name: "首节点",
         action: {
           type: "script",
           name: "testAction",
@@ -19,12 +19,12 @@ describe('WorkflowParser', () => {
         },
         output: {
           name: "output1",
-          description: "Intermediate result"
+          description: "中间结果"
         }
       },
       {
         id: "node2",
-        name: "Second Node",
+        name: "第二节点",
         dependencies: ["node1"],
         action: {
           type: "prompt",
@@ -32,7 +32,7 @@ describe('WorkflowParser', () => {
         },
         output: {
           name: "output2",
-          description: "Final result"
+          description: "最终结果"
         }
       }
     ],
@@ -41,41 +41,41 @@ describe('WorkflowParser', () => {
     }
   };
 
-  describe('parse', () => {
-    it('should successfully parse valid workflow JSON', () => {
+  describe('解析', () => {
+    it('应能成功解析有效的工作流 JSON', () => {
       const json = JSON.stringify(validWorkflowJson);
       const workflow = WorkflowParser.parse(json);
 
       expect(workflow.id).toBe("test-workflow");
-      expect(workflow.name).toBe("Test Workflow");
-      expect(workflow.description).toBe("A test workflow");
+      expect(workflow.name).toBe("测试工作流");
+      expect(workflow.description).toBe("一个测试工作流");
       expect(workflow.nodes).toHaveLength(2);
       expect(workflow.variables.get("testVar")).toBe("value");
     });
 
-    it('should throw on invalid JSON', () => {
-      const invalidJson = '{ invalid json';
-      expect(() => WorkflowParser.parse(invalidJson)).toThrow('Invalid JSON');
+    it('应抛出无效 JSON', () => {
+      const invalidJson = '{ 无效 json';
+      expect(() => WorkflowParser.parse(invalidJson)).toThrow('无效 JSON');
     });
 
-    it('should throw on validation errors', () => {
+    it('应在验证错误时抛出', () => {
       const invalidWorkflow = {
         ...validWorkflowJson,
         nodes: [
           {
             id: "node1",
-            name: "Invalid Node"
-            // Missing required action
+            name: "无效节点"
+            // 缺少规定操作
           }
         ]
       };
       expect(() => WorkflowParser.parse(JSON.stringify(invalidWorkflow)))
-        .toThrow('Invalid workflow');
+        .toThrow('无效工作流');
     });
   });
 
-  describe('serialize', () => {
-    it('should serialize workflow back to JSON', () => {
+  describe('序列化', () => {
+    it('应将工作流序列化为 JSON 格式', () => {
       const json = JSON.stringify(validWorkflowJson);
       const workflow = WorkflowParser.parse(json);
       const serialized = WorkflowParser.serialize(workflow);
@@ -87,24 +87,24 @@ describe('WorkflowParser', () => {
     });
   });
 
-  describe('validate', () => {
-    it('should validate correct workflow structure', () => {
+  describe('验证', () => {
+    it('应验证正确的工作流结构', () => {
       const result = WorkflowParser.validate(validWorkflowJson);
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should catch missing required fields', () => {
+    it('应捕捉遗漏的必填字段', () => {
       const invalidWorkflow = {
         id: "test-workflow",
-        // Missing name and nodes
+        // 缺少名称和节点
       };
       const result = WorkflowParser.validate(invalidWorkflow);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('Missing required field'))).toBe(true);
+      expect(result.errors.some(e => e.message.includes('缺少必填字段'))).toBe(true);
     });
 
-    it('should catch invalid node references', () => {
+    it('应捕获无效的节点引用', () => {
       const workflowWithBadRef = {
         ...validWorkflowJson,
         nodes: [
@@ -121,7 +121,7 @@ describe('WorkflowParser', () => {
       expect(result.errors.some(e => e.type === 'reference')).toBe(true);
     });
 
-    it('should catch duplicate node ids', () => {
+    it('应捕获重复的节点 ID', () => {
       const workflowWithDuplicates = {
         ...validWorkflowJson,
         nodes: [
@@ -131,7 +131,7 @@ describe('WorkflowParser', () => {
             action: { type: "script", name: "test" }
           },
           {
-            id: "node1", // Duplicate ID
+            id: "node1", // 重复 ID
             name: "Node 2",
             action: { type: "script", name: "test" }
           }
@@ -139,10 +139,10 @@ describe('WorkflowParser', () => {
       };
       const result = WorkflowParser.validate(workflowWithDuplicates);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('Duplicate node id'))).toBe(true);
+      expect(result.errors.some(e => e.message.includes('节点 ID 重复'))).toBe(true);
     });
 
-    it('should validate action types', () => {
+    it('应验证操作类型', () => {
       const workflowWithInvalidAction = {
         ...validWorkflowJson,
         nodes: [
@@ -155,19 +155,19 @@ describe('WorkflowParser', () => {
       };
       const result = WorkflowParser.validate(workflowWithInvalidAction);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('Invalid action type'))).toBe(true);
+      expect(result.errors.some(e => e.message.includes('操作类型无效'))).toBe(true);
     });
   });
 
-  describe('runtime conversion', () => {
-    it('should preserve node dependencies', () => {
+  describe('运行时转换', () => {
+    it('应保留节点依赖关系', () => {
       const json = JSON.stringify(validWorkflowJson);
       const workflow = WorkflowParser.parse(json);
       const node2 = workflow.getNode('node2');
       expect(node2.dependencies).toContain('node1');
     });
 
-    it('should set default values for optional fields', () => {
+    it('应为可选字段设置默认值', () => {
       const minimalNode = {
         version: "1.0",
         id: "test",
@@ -184,7 +184,7 @@ describe('WorkflowParser', () => {
       expect(node.output).toBeDefined();
     });
 
-    it('should preserve output specifications', () => {
+    it('应保持输出规范', () => {
       const workflow = WorkflowParser.parse(JSON.stringify(validWorkflowJson));
       const node = workflow.getNode('node1');
       expect(node.output.name).toEqual(validWorkflowJson.nodes[0].output.name);

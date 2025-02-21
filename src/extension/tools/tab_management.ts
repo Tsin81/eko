@@ -15,7 +15,7 @@ import {
 } from '../utils';
 
 /**
- * Browser tab management
+ * 浏览器标签页管理
  */
 export class TabManagement implements Tool<TabManagementParam, TabManagementResult> {
   name: string;
@@ -24,20 +24,20 @@ export class TabManagement implements Tool<TabManagementParam, TabManagementResu
 
   constructor() {
     this.name = 'tab_management';
-    this.description = 'Browser tab management, view and operate tabs';
+    this.description = '浏览器标签页管理，查看和操作标签页';
     this.input_schema = {
       type: 'object',
       properties: {
         command: {
           type: 'string',
-          description: `The command to perform. The available commands are:
-* \`tab_all\`: View all tabs and return the tabId and title.
-* \`current_tab\`: Get current tab information (tabId, url, title).
-* \`go_back\`: Go back to the previous page in the current tab.
-* \`change_url [url]\`: open URL in the current tab, eg: \`change_url https://www.google.com\`.
-* \`close_tab\`: Close the current tab.
-* \`switch_tab [tabId]\`: Switch to the specified tab using tabId, eg: \`switch_tab 1000\`.
-* \`new_tab [url]\`: Open a new tab window and open the URL, eg: \`new_tab https://www.google.com\``,
+          description: `要执行的操作指令。可用指令包括：
+* \`tab_all\`：查看所有标签页并返回标签页ID（tabId）和标题（title）。
+* \`current_tab\`：获取当前标签页信息（tabId、url、title）。.
+* \`go_back\`：在当前标签页中返回上一页。
+* \`change_url [url]\`：在当前标签页打开指定网址，例如：change_url https://www.bing.com。
+* \`close_tab\`：关闭当前标签页。
+* \`switch_tab [tabId]\`：通过标签ID切换到指定标签页，例如：\`switch_tab 1000\`。
+* \`new_tab [url]\`：新建标签页窗口并打开指定网址，例如：\`new_tab https://www.bing.com\``,
         },
       },
       required: ['command'],
@@ -45,7 +45,7 @@ export class TabManagement implements Tool<TabManagementParam, TabManagementResu
   }
 
   /**
-   * Tab management
+   * 标签页管理
    *
    * @param {*} params { command: `new_tab [url]` | 'tab_all' | 'current_tab' | 'go_back' | 'close_tab' | 'switch_tab [tabId]' | `change_url [url]` }
    * @returns > { result, success: true }
@@ -55,7 +55,7 @@ export class TabManagement implements Tool<TabManagementParam, TabManagementResu
     params: TabManagementParam
   ): Promise<TabManagementResult> {
     if (params === null || !params.command) {
-      throw new Error('Invalid parameters. Expected an object with a "command" property.');
+      throw new Error('参数无效。期望对象具有 “command” 属性。');
     }
     let windowId = await getWindowId(context);
     let command = params.command.trim();
@@ -160,7 +160,7 @@ export class TabManagement implements Tool<TabManagementParam, TabManagementResu
       };
       result = tabInfo;
     } else {
-      throw Error('Unknown command: ' + command);
+      throw Error('未知命令： ' + command);
     }
     return result;
   }

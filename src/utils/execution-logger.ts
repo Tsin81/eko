@@ -8,16 +8,16 @@ interface ImageData {
 }
 
 export interface LogOptions {
-  maxHistoryLength?: number; // Maximum number of messages to keep in history
+  maxHistoryLength?: number; // 保留在历史记录中的信息的最大数量
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
   includeTimestamp?: boolean;
-  debugImagePath?: string; // Directory path to save debug images (Node.js only)
-  imageSaver?: (imageData: ImageData, filename: string) => Promise<string>; // Custom image saver function
+  debugImagePath?: string; // 保存调试图像的目录路径（仅限 Node.js）
+  imageSaver?: (imageData: ImageData, filename: string) => Promise<string>; // 自定义图像保存功能
 }
 
 /**
- * Manages logging for action execution, providing a cleaner view of the execution
- * flow while maintaining important context and history.
+ * 管理行动执行日志，提供更清晰的执行流程视图，
+ * 同时保留重要的上下文和历史记录。
  */
 export class ExecutionLogger {
   private history: Message[] = [];
@@ -35,13 +35,13 @@ export class ExecutionLogger {
     this.debugImagePath = options.debugImagePath;
     this.imageSaver = options.imageSaver;
 
-    // Check if running in Node.js environment
+    // 检查是否在 Node.js 环境中运行
     this.isNode =
       typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
   }
 
   /**
-   * Logs a message with execution context
+   * 记录带有执行上下文的信息
    */
   log(level: string, message: string, context?: ExecutionContext) {
     if (this.shouldLog(level)) {
@@ -52,10 +52,10 @@ export class ExecutionLogger {
   }
 
   /**
-   * Updates conversation history while maintaining size limit
+   * 更新对话历史记录，同时保持大小限制
    */
   updateHistory(messages: Message[]) {
-    // Keep system messages and last N messages
+    // 保留系统信息和最近 N 条信息
     const systemMessages = messages.filter((m) => m.role === 'system');
     const nonSystemMessages = messages.filter((m) => m.role !== 'system');
 
@@ -64,14 +64,14 @@ export class ExecutionLogger {
   }
 
   /**
-   * Gets current conversation history
+   * 获取当前对话历史记录
    */
   getHistory(): Message[] {
     return this.history;
   }
 
   /**
-   * Summarizes the execution context for logging
+   * 总结日志记录的执行上下文
    */
   private summarizeContext(context?: ExecutionContext): string {
     if (!context) return '';
@@ -81,11 +81,11 @@ export class ExecutionLogger {
       tools: context.tools ? Array.from(context.tools.keys()) : [],
     };
 
-    return `\nContext: ${JSON.stringify(summary, null, 2)}`;
+    return `\n上下文：${JSON.stringify(summary, null, 2)}`;
   }
 
   /**
-   * Checks if message should be logged based on log level
+   * 根据日志级别检查是否应记录信息
    */
   private shouldLog(level: string): boolean {
     const levels = {
@@ -99,43 +99,43 @@ export class ExecutionLogger {
   }
 
   /**
-   * Logs the start of an action execution
+   * 记录操作执行的起始时间
    */
   logActionStart(actionName: string, input: unknown, context?: ExecutionContext) {
-    this.log('info', `Starting action: ${actionName}`, context);
-    this.log('info', `Input: ${JSON.stringify(input, null, 2)}`);
+    this.log('info', `开始操作：${actionName}`, context);
+    this.log('info', `输入：${JSON.stringify(input, null, 2)}`);
   }
 
   /**
-   * Logs the completion of an action execution
+   * 记录操作执行的完成情况
    */
   logActionComplete(actionName: string, result: unknown, context?: ExecutionContext) {
-    this.log('info', `Completed action: ${actionName}`, context);
-    this.log('info', `Result: ${JSON.stringify(result, null, 2)}`);
+    this.log('info', `完成操作：${actionName}`, context);
+    this.log('info', `结果：${JSON.stringify(result, null, 2)}`);
   }
 
   /**
-   * Logs a tool execution
+   * 记录工具执行情况
    */
   logToolExecution(toolName: string, input: unknown, context?: ExecutionContext) {
-    this.log('info', `Executing tool: ${toolName}`);
-    this.log('info', `Tool input: ${JSON.stringify(input, null, 2)}`);
+    this.log('info', `执行工具：${toolName}`);
+    this.log('info', `工具输入：${JSON.stringify(input, null, 2)}`);
   }
 
   /**
-   * Logs an error that occurred during execution
+   * 记录执行过程中发生的错误
    */
   logError(error: Error, context?: ExecutionContext) {
-    this.log('error', `Error occurred: ${error.message}`, context);
+    this.log('error', `发生错误： ${error.message}`, context);
     if (error.stack) {
-      this.log('debug', `Stack trace: ${error.stack}`);
+      this.log('debug', `堆栈跟踪： ${error.stack}`);
     }
   }
 
   private extractFromDataUrl(dataUrl: string): { extension: string; base64Data: string } {
     const matches = dataUrl.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
     if (!matches) {
-      throw new Error('Invalid data URL format');
+      throw new Error('data URL 格式无效');
     }
     return {
       extension: matches[1],
@@ -148,7 +148,7 @@ export class ExecutionLogger {
       let extension: string;
       let base64Data: string;
 
-      // Handle both data URL strings and ImageData objects
+      // 同时处理 data URL 字符串和 ImageData 对象
       if (typeof imageData === 'string' && imageData.startsWith('data:')) {
         const extracted = this.extractFromDataUrl(imageData);
         extension = extracted.extension;
@@ -160,7 +160,7 @@ export class ExecutionLogger {
         return '[image]';
       }
 
-      // If custom image saver is provided, use it
+      // 如果提供了自定义图像保存程序，使用它
       if (this.imageSaver) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const filename = `${toolName}_${timestamp}.${extension}`;
@@ -170,9 +170,9 @@ export class ExecutionLogger {
         );
       }
 
-      // If in Node.js environment and debugImagePath is set
+      // 如果在 Node.js 环境中并设置了 debugImagePath
       if (this.isNode && this.debugImagePath) {
-        // Dynamically import Node.js modules only when needed
+        // 仅在需要时动态导入 Node.js 模块
         const { promises: fs } = await import('fs');
         const { join } = await import('path');
 
@@ -185,31 +185,31 @@ export class ExecutionLogger {
         const buffer = Buffer.from(base64Data, 'base64');
         await fs.writeFile(filepath, buffer);
 
-        return `[image saved to: ${filepath}]`;
+        return `[图像已保存至：${filepath}]`;
       }
 
-      // Default case - just return placeholder
-      return '[image]';
+      // 默认情况下 - 只返回占位符
+      return '[图像]';
     } catch (error) {
-      console.warn('Failed to save debug image:', error);
-      return '[image]';
+      console.warn('保存调试图像失败：', error);
+      return '[图像]';
     }
   }
 
   private async formatToolResult(result: any): Promise<string> {
-    // Handle null/undefined
+    // 处理 空值/未定义
     if (result == null) {
       return 'null';
     }
 
-    // Handle direct image result
+    // 直接处理图像结果
     if (result.image) {
       const imagePlaceholder = await this.saveDebugImage(result.image, 'tool');
       const modifiedResult = { ...result, image: imagePlaceholder };
       return JSON.stringify(modifiedResult);
     }
 
-    // Handle nested images in result object
+    // 处理结果对象中的嵌套图像
     if (typeof result === 'object') {
       const formatted = { ...result };
       for (const [key, value] of Object.entries(formatted)) {
@@ -227,7 +227,7 @@ export class ExecutionLogger {
       return JSON.stringify(formatted);
     }
 
-    // Handle primitive values
+    // 处理原始值
     return String(result);
   }
 
@@ -242,8 +242,8 @@ export class ExecutionLogger {
       const formattedResult = await this.formatToolResult(result);
 
       console.log(
-        `${timestamp} [INFO] Tool executed: ${toolName}\n` +
-          `${timestamp} [INFO] Tool result: ${formattedResult}${contextSummary}`
+        `${timestamp} [INFO] 工具已执行： ${toolName}\n` +
+          `${timestamp} [INFO] 工具结果： ${formattedResult}${contextSummary}`
       );
     }
   }

@@ -12,17 +12,17 @@ export interface CommandExecuteParams {
 
 export class CommandExecute implements Tool<CommandExecuteParams, any> {
   name = 'command_execute';
-  description = 'Execute a shell command with user confirmation';
+  description = '在用户确认后执行 shell 命令';
   input_schema: InputSchema = {
     type: 'object',
     properties: {
       command: {
         type: 'string',
-        description: 'The command to execute. Ensure that the command is non-interactive and does not require user input.'
+        description: '要执行的命令。确保该命令是非交互式的，不需要用户输入。'
       },
       cwd: {
         type: 'string',
-        description: 'Working directory for command execution'
+        description: '执行命令的工作目录'
       }
     },
     required: ['command']
@@ -35,7 +35,7 @@ export class CommandExecute implements Tool<CommandExecuteParams, any> {
     });
 
     return new Promise(resolve => {
-      rl.question(`Are you sure you want to execute command: "${command}"? (y/N) `, answer => {
+      rl.question(`你确定要执行命令："${command}"？ (y/N) `, answer => {
         rl.close();
         resolve(answer.toLowerCase() === 'y');
       });
@@ -47,7 +47,7 @@ export class CommandExecute implements Tool<CommandExecuteParams, any> {
     if (!confirmed) {
       return {
         executed: false,
-        reason: 'User cancelled execution'
+        reason: '用户取消执行'
       };
     }
 

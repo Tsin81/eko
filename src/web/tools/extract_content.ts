@@ -2,7 +2,7 @@ import { Tool, InputSchema, ExecutionContext } from '../../types/action.types';
 import { extractHtmlContent } from './browser';
 
 /**
- * Extract Page Content
+ * 提取页面内容
  */
 export class ExtractContent implements Tool<any, string> {
   name: string;
@@ -11,7 +11,7 @@ export class ExtractContent implements Tool<any, string> {
 
   constructor() {
     this.name = 'extract_content';
-    this.description = 'Extract the text content of the current webpage';
+    this.description = '提取当前网页的文本内容';
     this.input_schema = {
       type: 'object',
       properties: {},
@@ -19,7 +19,7 @@ export class ExtractContent implements Tool<any, string> {
   }
 
   /**
-   * Extract Page Content
+   * 提取页面内容
    *
    * @param {*} params {}
    * @returns > string

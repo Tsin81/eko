@@ -13,25 +13,25 @@ export interface FileWriteParams {
 
 export class FileWrite implements Tool<FileWriteParams, any> {
   name = 'file_write';
-  description = 'Write content to a file with user confirmation';
+  description = '在用户确认后将内容写入文件';
   input_schema: InputSchema = {
     type: 'object',
     properties: {
       path: {
         type: 'string',
-        description: 'Path to write the file'
+        description: '写入文件的路径'
       },
       content: {
         type: 'string',
-        description: 'Content to write to the file'
+        description: '要写入文件的内容'
       },
       append: {
         type: 'boolean',
-        description: 'Whether to append to existing file (default: false)'
+        description: '是否追加到现有文件（默认值：false）'
       },
       encoding: {
         type: 'string',
-        description: 'File encoding (default: utf8)',
+        description: '文件编码（默认：utf8）',
         enum: ['utf8', 'ascii', 'utf16le', 'base64', 'binary']
       }
     },
@@ -54,11 +54,11 @@ export class FileWrite implements Tool<FileWriteParams, any> {
     });
 
     const action = exists
-      ? (append ? 'append to' : 'overwrite')
-      : 'create';
+      ? (append ? '追加' : '覆盖')
+      : '创建';
 
     return new Promise(resolve => {
-      rl.question(`Are you sure you want to ${action} file at "${path}"? (y/N) `, answer => {
+      rl.question(`确定要在 “${path}” 处运行 ${action} 文件吗？ (y/N) `, answer => {
         rl.close();
         resolve(answer.toLowerCase() === 'y');
       });
@@ -75,7 +75,7 @@ export class FileWrite implements Tool<FileWriteParams, any> {
       if (!confirmed) {
         return {
           success: false,
-          reason: 'User cancelled operation'
+          reason: '用户取消操作'
         };
       }
 

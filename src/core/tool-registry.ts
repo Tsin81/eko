@@ -1,5 +1,3 @@
-// src/core/tool-registry.ts
-
 import { Tool } from '../types/action.types';
 import { ToolDefinition } from '../types/llm.types';
 import { workflowSchema } from '../schemas/workflow.schema';
@@ -18,7 +16,7 @@ export class ToolRegistry {
   getTool(toolName: string): Tool<any, any> {
     const tool = this.tools.get(toolName);
     if (!tool) {
-      throw new Error(`Tool with name ${toolName} not found`);
+      throw new Error(`名称为 ${toolName} 的工具未找到`);
     }
     return tool;
   }
@@ -43,11 +41,11 @@ export class ToolRegistry {
     return Array.from(this.tools.keys());
   }
 
-  // Gets workflow schema with current tools
+  // 通过当前工具获取 workflow schema
   getWorkflowSchema(): object {
     const schema = JSON.parse(JSON.stringify(workflowSchema)); // Deep clone
 
-    // Update the tools property in action schema to use current tool enum
+    // 将操作模式中的工具属性更新为使用当前工具的 enum。
     const actionProperties = schema.properties.nodes.items.properties.action.properties;
     actionProperties.tools = {
       type: 'array',

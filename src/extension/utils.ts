@@ -51,7 +51,7 @@ export async function getTabId(context: ExecutionContext): Promise<number> {
     }
 
     if (!tabId) {
-      throw new Error('Could not find a valid tab');
+      throw new Error('找不到有效的标签页');
     }
     context.variables.set('tabId', tabId);
   }
@@ -63,7 +63,7 @@ export function getCurrentTabId(windowId?: number | undefined): Promise<number |
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ windowId, active: true, lastFocusedWindow: true }, function (tabs) {
       if (chrome.runtime.lastError) {
-        console.error('Chrome runtime error:', chrome.runtime.lastError);
+        console.error('Chrome 运行时出错：', chrome.runtime.lastError);
         reject(chrome.runtime.lastError);
         return;
       }
@@ -235,7 +235,7 @@ export class MsgEvent {
 }
 
 /**
- * Counter (Function: Wait for all asynchronous tasks to complete)
+ * 计数器（功能：等待所有异步任务完成）
  */
 export class CountDownLatch {
   resolve?: Function;

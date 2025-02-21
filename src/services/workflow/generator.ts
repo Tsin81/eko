@@ -24,7 +24,7 @@ export class WorkflowGenerator {
   }
 
   private async doGenerateWorkflow(prompt: string, modify: boolean, ekoConfig: EkoConfig): Promise<Workflow> {
-    // Create prompts with current set of tools
+    // 使用当前工具集创建提示
     const prompts = createWorkflowPrompts(this.toolRegistry.getToolDefinitions());
 
     let messages: Message[] = [];
@@ -58,7 +58,7 @@ export class WorkflowGenerator {
 
     if (!response.toolCalls.length || !response.toolCalls[0].input.workflow) {
       messages.pop();
-      throw new Error('Failed to generate workflow: Invalid response from LLM');
+      throw new Error('生成工作流程失败： 来自 LLM 的无效响应');
     }
 
     messages.push(
@@ -87,7 +87,7 @@ export class WorkflowGenerator {
 
     const workflowData = response.toolCalls[0].input.workflow as any;
 
-    // Forcibly add special tools
+    // 强制添加特殊工具
     const specialTools = [
       "cancel_workflow",
       "human_input_text",
@@ -101,23 +101,23 @@ export class WorkflowGenerator {
       }
     }
 
-    // Validate all tools exist
+    // 验证所有工具是否存在
     for (const node of workflowData.nodes) {
       if (!this.toolRegistry.hasTools(node.action.tools)) {
-        throw new Error(`Workflow contains undefined tools: ${node.action.tools}`);
+        throw new Error(`工作流程包含未定义的工具： ${node.action.tools}`);
       }
     }
 
-    // Generate a new UUID if not provided
+    // 如果未提供，则生成新的 UUID
     if (!workflowData.id) {
       workflowData.id = uuidv4();
     }
 
     // debug
-    console.log("Debug the workflow...")
+    console.log("调试工作流程...")
     console.log(workflowData);
-    console.log("Debug the workflow...Done")    
-    
+    console.log("调试工作流程......完成")
+
     return this.createWorkflowFromData(workflowData, ekoConfig);
   }
 
@@ -136,7 +136,7 @@ export class WorkflowGenerator {
       }
     );
 
-    // Add nodes to workflow
+    // 为工作流程添加节点
     if (Array.isArray(data.nodes)) {
       data.nodes.forEach((nodeData: any) => {
         const tools = nodeData.action.tools.map((toolName: string) =>

@@ -1,5 +1,3 @@
-// test/integration/workflow.generator.test.ts
-
 import { ClaudeProvider } from '../../src/services/llm/claude-provider';
 import { WorkflowGenerator } from '../../src/services/workflow/generator';
 import { ToolRegistry } from '../../src/core/tool-registry';
@@ -12,7 +10,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Mock browser tool base class to avoid duplicate code
+// 模拟浏览器工具基类，避免重复代码
 class BrowserTool implements Tool<any, any> {
   constructor(
     public name: string,
@@ -21,22 +19,22 @@ class BrowserTool implements Tool<any, any> {
   ) {}
 
   async execute(params: unknown): Promise<unknown> {
-    throw new Error('Not implemented');
+    throw new Error('未执行');
   }
 }
 
-// Create mock browser tools
+// 创建模拟浏览器工具
 function createBrowserTools(): Tool<any, any>[] {
   return [
     new BrowserTool(
       'open_url',
-      'Opens a specified URL in the current browser tab',
+      '在当前浏览器标签页中打开指定的 URL',
       {
         type: 'object',
         properties: {
           url: {
             type: 'string',
-            description: 'The URL to open'
+            description: '要打开的 URL'
           }
         },
         required: ['url']
@@ -44,21 +42,21 @@ function createBrowserTools(): Tool<any, any>[] {
     ),
     new BrowserTool(
       'find_dom_object',
-      'Finds a DOM element using CSS selector, returns multiple elements if found',
+      '使用 CSS 选择器查找 DOM 元素，如果找到，则返回多个元素',
       {
         type: 'object',
         properties: {
           selector: {
             type: 'string',
-            description: 'CSS selector to find elements'
+            description: '用于查找元素的 CSS 选择器'
           },
           waitForElement: {
             type: 'boolean',
-            description: 'Whether to wait for elements to appear'
+            description: '是否等待元素显示'
           },
           timeout: {
             type: 'integer',
-            description: 'Maximum time to wait in milliseconds'
+            description: '最长等待时间'
           }
         },
         required: ['selector']
@@ -66,13 +64,13 @@ function createBrowserTools(): Tool<any, any>[] {
     ),
     new BrowserTool(
       'click_dom_object',
-      'Clicks on a DOM element found by CSS selector',
+      '点击通过 CSS 选择器找到的 DOM 元素',
       {
         type: 'object',
         properties: {
           selector: {
             type: 'string',
-            description: 'CSS selector of element to click'
+            description: '要点击元素的 CSS 选择器'
           }
         },
         required: ['selector']
@@ -80,21 +78,21 @@ function createBrowserTools(): Tool<any, any>[] {
     ),
     new BrowserTool(
       'input_text',
-      'Types text into a form field',
+      '在表单字段中输入文本',
       {
         type: 'object',
         properties: {
           selector: {
             type: 'string',
-            description: 'CSS selector of input element'
+            description: '输入元素的 CSS 选择器'
           },
           text: {
             type: 'string',
-            description: 'Text to type'
+            description: '文本输入'
           },
           clear: {
             type: 'boolean',
-            description: 'Whether to clear existing text first'
+            description: '是否先清除现有文本'
           }
         },
         required: ['selector', 'text']
@@ -102,13 +100,13 @@ function createBrowserTools(): Tool<any, any>[] {
     ),
     new BrowserTool(
       'copy_dom_object_text',
-      'Extracts text content from DOM elements matching a selector',
+      '从与选择器匹配的 DOM 元素中提取文本内容',
       {
         type: 'object',
         properties: {
           selector: {
             type: 'string',
-            description: 'CSS selector of elements to copy text from'
+            description: '要复制文本的 CSS 元素选择器'
           }
         },
         required: ['selector']
@@ -116,21 +114,21 @@ function createBrowserTools(): Tool<any, any>[] {
     ),
     new BrowserTool(
       'save_file',
-      'Saves content to a file',
+      '将内容保存到文件',
       {
         type: 'object',
         properties: {
           content: {
             type: 'string',
-            description: 'Content to save'
+            description: '要保存的内容'
           },
           filename: {
             type: 'string',
-            description: 'Name of the file'
+            description: '文件名称'
           },
           type: {
             type: 'string',
-            description: 'File type',
+            description: '文件类型',
             enum: ['text/plain', 'text/csv', 'text/html', 'application/json']
           }
         },
@@ -143,11 +141,11 @@ function createBrowserTools(): Tool<any, any>[] {
 const ENABLE_INTEGRATION_TESTS = process.env.ENABLE_INTEGRATION_TESTS === 'true';
 const describeIntegration = ENABLE_INTEGRATION_TESTS ? describe : describe.skip;
 
-describeIntegration('WorkflowGenerator Integration', () => {
+describeIntegration('WorkflowGenerator 集成', () => {
   let toolRegistry: ToolRegistry;
   let generator: WorkflowGenerator;
 
-  // Helper function to save workflow DSL to file
+  // 辅助功能，将工作流程 DSL 保存到文件
   async function saveWorkflowToFile(dsl: string, filename: string) {
     const testOutputDir = path.join(__dirname, '../fixtures/generated');
     await fs.mkdir(testOutputDir, { recursive: true });
@@ -157,54 +155,54 @@ describeIntegration('WorkflowGenerator Integration', () => {
   beforeAll(() => {
     const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
     if (!ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY environment variable is required for integration tests');
+      throw new Error('集成测试需要 ANTHROPIC_API_KEY 环境变量');
     }
 
-    // Set up registry with browser tools
+    // 使用浏览器工具设置注册表
     toolRegistry = new ToolRegistry();
     createBrowserTools().forEach(tool => toolRegistry.registerTool(tool));
 
-    // Create generator with Claude provider
+    // 使用克劳德提供商创建生成器
     const llmProvider = new ClaudeProvider(ANTHROPIC_API_KEY);
     generator = new WorkflowGenerator(llmProvider, toolRegistry);
   });
 
-  it('should generate workflow for finding Chromium developers', async () => {
-    const prompt = "Find Chromium developers from Github, collect the profiles, and summarize the results to CSV";
+  it('应生成寻找 Chromium 开发者的工作流程', async () => {
+    const prompt = "从 Github 查找 Chromium 开发人员，收集简介，并将结果汇总为 CSV 文件";
 
-    // Generate workflow
+    // 生成工作流
     const workflow = await generator.generateWorkflow(prompt);
 
-    // Convert to DSL for validation and inspection
+    // 转换为 DSL，以便验证和检查
     const dsl = WorkflowParser.serialize(workflow);
 
-    // Save DSL for human inspection
+    // 保存 DSL 供人工检查
     await saveWorkflowToFile(dsl, 'github_chromium_workflow.json');
 
-    // Validate the generated workflow
+    // 验证生成的工作流
     const validationResult: ValidationResult = WorkflowParser.validate(JSON.parse(dsl));
 
-    // Log validation errors if any (helpful for debugging)
+    // 记录任何验证错误（有助于调试）
     if (!validationResult.valid) {
-      console.error('Validation errors:', JSON.stringify(validationResult.errors, null, 2));
+      console.error('验证错误：', JSON.stringify(validationResult.errors, null, 2));
     }
 
-    // Assert validation
+    // 断言验证
     expect(validationResult.valid).toBe(true);
     expect(validationResult.errors).toHaveLength(0);
 
-    // Basic structure checks
+    // 基本结构检查
     expect(workflow.id).toBeDefined();
     expect(workflow.name).toBeDefined();
     expect(workflow.nodes).toBeDefined();
     expect(workflow.nodes.length).toBeGreaterThan(0);
 
-    // Log workflow structure for inspection
-    console.log('\nGenerated Workflow Structure:');
-    console.log('ID:', workflow.id);
-    console.log('Name:', workflow.name);
-    console.log('Number of nodes:', workflow.nodes.length);
-    console.log('Nodes:', workflow.nodes.map(n => ({
+    // 检查日志工作流结构
+    console.log('\n生成工作流结构：');
+    console.log('ID：', workflow.id);
+    console.log('名称：', workflow.name);
+    console.log('节点数：', workflow.nodes.length);
+    console.log('节点：', workflow.nodes.map(n => ({
       id: n.id,
       name: n.name,
       dependencies: n.dependencies,
@@ -214,7 +212,7 @@ describeIntegration('WorkflowGenerator Integration', () => {
       }
     })));
 
-    // Verify tool usage
+    // 验证工具使用情况
     const usedTools = new Set<string>();
     workflow.nodes.forEach(node => {
       node.action.tools.forEach(tool => {
@@ -222,39 +220,39 @@ describeIntegration('WorkflowGenerator Integration', () => {
       });
     });
 
-    console.log('\nTools used:', Array.from(usedTools));
+    console.log('\n已使用工具：', Array.from(usedTools));
 
-    // Expected tools for this workflow
+    // 该工作流预期使用的工具
     const expected_tools = new Set([
-      'open_url',         // For navigating to Github
-      'input_text',       // For entering search terms
-      'click_dom_object', // For interaction
-      'find_dom_object',  // For finding profile elements
-      'copy_dom_object_text', // For extracting profile data
-      'save_file',         // For saving the CSV
-      'write_context'      // For storing data in context
+      'open_url',         // 导航至 Github
+      'input_text',       // 输入搜索词
+      'click_dom_object', // 互动
+      'find_dom_object',  // 用于查找 profile 元素
+      'copy_dom_object_text', // 用于提取 profile 数据
+      'save_file',         // 保存 CSV
+      'write_context'      // 用于存储上下文数据
     ]);
 
-    // Verify reasonable tool usage
+    // 验证工具的合理使用
     expect(usedTools.size).toBeGreaterThanOrEqual(3);
     usedTools.forEach(tool => {
       expect(expected_tools).toContain(tool);
     });
 
-    // Verify workflow has proper node dependencies
+    // 验证工作流是否具有适当的节点依赖关系
     expect(workflow.validateDAG()).toBe(true);
 
-    // The last node should use save_file tool to create CSV
+    // 最后一个节点应使用 save_file 工具来创建 CSV
     const lastNode = workflow.nodes[workflow.nodes.length - 1];
     expect(lastNode.action.tools.some(t => t.name === 'save_file')).toBe(true);
 
-    // First node should have no dependencies
+    // 第一个节点不应有任何依赖关系
     const firstNode = workflow.nodes[0];
     expect(firstNode.dependencies.length).toBe(0);
 
-    // Other nodes should have dependencies
+    // 其他节点应具有相关性
     workflow.nodes.slice(1).forEach(node => {
       expect(node.dependencies.length).toBeGreaterThan(0);
     });
-  }, 30000); // Increased timeout for LLM
+  }, 30000); // LLM 超时时间延长
 });

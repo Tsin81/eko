@@ -17,7 +17,7 @@ import {
 import { ToolRegistry } from './tool-registry';
 
 /**
- * Eko core
+ * Eko 核心
  */
 export class Eko {
   public static tools: Map<string, Tool<any, any>> = new Map();
@@ -46,7 +46,7 @@ export class Eko {
           openaiConfig.options
         );
       } else {
-        let msg: string = 'Unknown parameter: llm > ' + llmConfig['llm'];
+        let msg: string = '未知参数：llm > ' + llmConfig['llm'];
         console.error(msg)
         throw new Error(msg);
       }
@@ -85,16 +85,16 @@ export class Eko {
   }
 
   public async execute(workflow: Workflow, callback?: WorkflowCallback): Promise<NodeOutput[]> {
-    // Inject LLM provider at workflow level
+    // 在工作流级别注入 LLM 提供程序
     workflow.llmProvider = this.llmProvider;
 
-    // Process each node's action
+    // 处理每个节点的操作
     for (const node of workflow.nodes) {
       if (node.action.type === 'prompt') {
-        // Inject LLM provider
+        // 注入 LLM 提供商
         node.action.llmProvider = this.llmProvider;
 
-        // Resolve tools
+        // 查找合适工具并注入
         node.action.tools = node.action.tools.map(tool => {
           if (typeof tool === 'string') {
             return this.toolRegistry.getTool(tool);
@@ -126,7 +126,7 @@ export class Eko {
     } else if (Eko.tools.has(toolName)) {
       tool = Eko.tools.get(toolName) as Tool<any, any>;
     } else {
-      throw new Error(`Tool with name ${toolName} not found`);
+      throw new Error(`名称为 ${toolName} 的工具未找到`);
     }
     return tool;
   }

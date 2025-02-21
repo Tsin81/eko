@@ -3,7 +3,7 @@ import { screenshot } from './browser';
 import { ScreenshotResult } from '../../types/tools.types';
 
 /**
- * Current Page Screenshot
+ * 当前页面截图
  */
 export class Screenshot implements Tool<any, ScreenshotResult> {
   name: string;
@@ -12,7 +12,7 @@ export class Screenshot implements Tool<any, ScreenshotResult> {
 
   constructor() {
     this.name = 'screenshot';
-    this.description = 'Screenshot the current webpage window';
+    this.description = '对当前网页窗口进行截图';
     this.input_schema = {
       type: 'object',
       properties: {},
@@ -20,7 +20,7 @@ export class Screenshot implements Tool<any, ScreenshotResult> {
   }
 
   /**
-   * Current Page Screenshot
+   * 当前页面截图
    *
    * @param {*} params {}
    * @returns > { image: { type: 'base64', media_type: 'image/png', data } }

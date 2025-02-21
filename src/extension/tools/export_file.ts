@@ -4,7 +4,7 @@ import { getTabId, open_new_tab, sleep } from '../utils';
 import { exportFile } from './html_script';
 
 /**
- * Export file
+ * 导出文件
  */
 export class ExportFile implements Tool<ExportFileParam, unknown> {
   name: string;
@@ -13,22 +13,22 @@ export class ExportFile implements Tool<ExportFileParam, unknown> {
 
   constructor() {
     this.name = 'export_file';
-    this.description = 'Content exported as a file, support text format';
+    this.description = '以文件形式导出内容，支持文本格式';
     this.input_schema = {
       type: 'object',
       properties: {
         fileType: {
           type: 'string',
-          description: 'File format type',
+          description: '文件格式类型',
           enum: ['txt', 'csv', 'md', 'html', 'js', 'xml', 'json', 'yml', 'sql'],
         },
         content: {
           type: 'string',
-          description: 'Export file content',
+          description: '要导出的文件内容',
         },
         filename: {
           type: 'string',
-          description: 'File name',
+          description: '文件名称',
         },
       },
       required: ['fileType', 'content'],
@@ -36,14 +36,14 @@ export class ExportFile implements Tool<ExportFileParam, unknown> {
   }
 
   /**
-   * export
+   * 导出
    *
    * @param {*} params { fileType: 'csv', content: 'field1,field2\ndata1,data2' }
    * @returns > { success: true }
    */
   async execute(context: ExecutionContext, params: ExportFileParam): Promise<unknown> {
     if (typeof params !== 'object' || params === null || !('content' in params)) {
-      throw new Error('Invalid parameters. Expected an object with a "content" property.');
+      throw new Error('参数无效。期望对象具有 “content” 属性。');
     }
     await context.callback?.hooks?.onExportFile?.(params);
     let type = 'text/plain';
@@ -84,7 +84,7 @@ export class ExportFile implements Tool<ExportFileParam, unknown> {
       });
     } catch (e) {
       let tab;
-      const url = 'https://www.google.com';
+      const url = 'https://www.bing.com';
       if (context.ekoConfig.workingWindowId) {
         tab = await open_new_tab(url, false, context.ekoConfig.workingWindowId);
       } else {

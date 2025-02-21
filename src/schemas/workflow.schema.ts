@@ -14,7 +14,7 @@ export const workflowSchema = {
           id: { type: "string" },
           type: {
             type: "string",
-            enum: ["action"],    // only action nodes for now; reserved for future types like condition, loop, etc.
+            enum: ["action"],    // 暂时只用于操作节点；保留给未来的类型，如条件、循环等。
           },
           dependencies: {
             type: "array",
@@ -41,7 +41,7 @@ export const workflowSchema = {
               params: { type: "object" },
               tools: {
                 type: "array",
-                items: { type: "string" },   // enum values from tool registry will be dynamically populated
+                items: { type: "string" },   // 将动态填充工具注册表中的枚举值
               },
             },
           },

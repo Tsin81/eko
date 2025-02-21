@@ -11,30 +11,30 @@ dotenv.config();
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!ANTHROPIC_API_KEY) {
-  throw new Error('ANTHROPIC_API_KEY environment variable is required for integration tests');
+  throw new Error('集成测试需要 ANTHROPIC_API_KEY 环境变量');
 }
 
-// Only run these tests if explicitly enabled
+// 仅在明确启用的情况下运行这些测试
 const ENABLE_INTEGRATION_TESTS = process.env.ENABLE_INTEGRATION_TESTS === 'true';
 const describeIntegration = ENABLE_INTEGRATION_TESTS ? describe : describe.skip;
 
-// Addition tool
+// 添加工具
 class AddTool implements Tool<any, any> {
   name = 'add';
-  description = 'Add two numbers together.';
+  description = '将两个数字相加。';
   input_schema = {
     type: 'object',
     properties: {
       a: {
         type: 'number',
-        description: 'First number',
+        description: '第一个数字'
       } as const,
       b: {
         type: 'number',
-        description: 'Second number',
-      } as const,
+        description: '第二个数字'
+      } as const
     } as unknown as Properties,
-    required: ['a', 'b'],
+    required: ['a', 'b']
   } as InputSchema;
 
   async execute(context: ExecutionContext, params: unknown): Promise<unknown> {
@@ -44,23 +44,23 @@ class AddTool implements Tool<any, any> {
   }
 }
 
-// Multiplication tool
+// 乘法工具
 class MultiplyTool implements Tool<any, any> {
   name = 'multiply';
-  description = 'Multiply two numbers together.';
+  description = '两个数字相乘。';
   input_schema = {
     type: 'object',
     properties: {
       a: {
         type: 'number',
-        description: 'First number',
+        description: '第一个数字'
       } as const,
       b: {
         type: 'number',
-        description: 'Second number',
-      } as const,
+        description: '第二个数字'
+      } as const
     } as unknown as Properties,
-    required: ['a', 'b'],
+    required: ['a', 'b']
   } as InputSchema;
 
   async execute(context: ExecutionContext, params: unknown): Promise<unknown> {
@@ -70,19 +70,19 @@ class MultiplyTool implements Tool<any, any> {
   }
 }
 
-// Echo tool to display results
+// 用于显示结果的 Echo 工具
 class EchoTool implements Tool<any, any> {
   name = 'echo';
-  description = 'Display or print a message or value.';
+  description = '显示/打印信息或数值。';
   input_schema = {
     type: 'object',
     properties: {
       message: {
         type: 'string',
-        description: 'Message or value to display',
-      } as const,
+        description: '要显示的信息或数值'
+      } as const
     } as unknown as Properties,
-    required: ['message'],
+    required: ['message']
   } as InputSchema;
 
   async execute(context: ExecutionContext, params: unknown): Promise<unknown> {
@@ -92,7 +92,7 @@ class EchoTool implements Tool<any, any> {
   }
 }
 
-describeIntegration('Minimal Workflow Integration with Generation', () => {
+describeIntegration('最小化工作流与生成功能的集成', () => {
   let llmProvider: ClaudeProvider;
   let context: ExecutionContext;
   let tools: Tool<any, any>[];
@@ -100,7 +100,7 @@ describeIntegration('Minimal Workflow Integration with Generation', () => {
   let toolRegistry: ToolRegistry;
   let generator: WorkflowGenerator;
 
-    // Helper function to save workflow DSL to file
+    // 辅助功能，将工作流 DSL 保存到文件
     async function saveWorkflowToFile(dsl: string, filename: string) {
       const testOutputDir = path.join(__dirname, '../fixtures/generated');
       await fs.mkdir(testOutputDir, { recursive: true });
@@ -117,27 +117,27 @@ describeIntegration('Minimal Workflow Integration with Generation', () => {
 
   beforeEach(() => {});
 
-  it('should calculate 23 * 45 + 67 using tool chain', async () => {
+  it('应使用工具链计算 23 * 45 + 67', async () => {
     const prompt =
-      'Calculate 23 * 45 + 67 using the provided calculation tools, and display the result';
+      '使用提供的计算工具计算 23 * 45 + 67，并显示结果';
 
-    // Generate workflow
+    // 生成工作流
     const workflow = await generator.generateWorkflow(prompt);
 
-    // Convert to DSL for validation and inspection
+    // 转换为 DSL，以便验证和检查
     const dsl = WorkflowParser.serialize(workflow);
 
-    // Save DSL for human inspection
+    // 保存 DSL 供人工检查
     await saveWorkflowToFile(dsl, 'calculator.json');
 
-    // Execute workflow
+    // 执行工作流
     const workflowResult = await workflow.execute();
 
-    // Log final output
+    // 记录最终输出
     const workflowResultJson = JSON.stringify(workflowResult, null, 2);
-    console.log('Workflow result:', workflowResultJson);
+    console.log('工作流结果：', workflowResultJson);
 
-    // Find substring (1102) in the result string
+    // 查找结果字符串中的子字符串 (1102)
     expect(workflowResultJson).toContain('1102');
   }, 60000);
 });

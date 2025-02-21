@@ -3,11 +3,11 @@ import { Tool, ExecutionContext, InputSchema } from '../../src/types/action.type
 import { NodeInput, NodeOutput } from '../../src/types/workflow.types';
 import { LLMProvider, Message, LLMParameters, LLMStreamHandler } from '../../src/types/llm.types';
 
-// Mock tool for testing
+// 模拟测试工具
 class MockTool implements Tool<any, any> {
   constructor(
     public name: string,
-    public description: string = 'Mock tool for testing',
+    public description: string = '模拟测试工具',
     public shouldFail: boolean = false
   ) {}
 
@@ -21,13 +21,13 @@ class MockTool implements Tool<any, any> {
 
   async execute(context: ExecutionContext, params: unknown): Promise<unknown> {
     if (this.shouldFail) {
-      throw new Error('Tool execution failed');
+      throw new Error('工具执行失败');
     }
     return { success: true, params };
   }
 }
 
-// Mock LLM provider
+// 模拟 LLM 提供商
 class MockLLMProvider implements LLMProvider {
   constructor(
     private toolCallResponses: Array<{ name: string; input: any }> = [],
@@ -37,10 +37,10 @@ class MockLLMProvider implements LLMProvider {
 
   async generateText(): Promise<any> {
     if (this.shouldFail) {
-      throw new Error('LLM generation failed');
+      throw new Error('LLM 生成失败');
     }
     return {
-      content: 'Test response',
+      content: '测试响应',
       toolCalls: this.toolCallResponses,
     };
   }
@@ -51,14 +51,14 @@ class MockLLMProvider implements LLMProvider {
     handler: LLMStreamHandler
   ): Promise<void> {
     if (this.shouldFail) {
-      handler.onError?.(new Error('Stream generation failed'));
+      handler.onError?.(new Error('流生成失败'));
       return;
     }
 
-    // Simulate thinking output
-    handler.onContent?.('Thinking about the task...');
+    // 模拟思考输出
+    handler.onContent?.('正在思考任务...');
 
-    // Process each tool call
+    // 处理每个工具调用
     const toolCall = this.toolCallResponses[this.counter++];
     handler.onToolUse?.({
       id: `tool-${Math.random()}`,
@@ -66,10 +66,10 @@ class MockLLMProvider implements LLMProvider {
       input: toolCall.input,
     });
 
-    // Final response
+    // 最终响应
     handler.onComplete?.({
         content: [
-          { type: 'text', text: 'Thinking about the task...' },
+          { type: 'text', text: '正在思考任务...' },
           {
             type: 'tool_use',
             id: `tool-${Math.random()}`,
@@ -83,12 +83,12 @@ class MockLLMProvider implements LLMProvider {
           input: toolCall.input
         }],
         stop_reason: 'tool_use',
-        textContent: null  // No text content when using tools
+        textContent: null  // 使用工具时无文本内容
       });
   }
 }
 
-describe('ActionImpl', () => {
+describe('操作模板', () => {
   let mockTool: MockTool;
   let mockLLMProvider: MockLLMProvider;
   let context: ExecutionContext;
@@ -103,9 +103,9 @@ describe('ActionImpl', () => {
     };
   });
 
-  describe('constructor', () => {
-    it('should create an action with tools including write_context', () => {
-      const action = ActionImpl.createPromptAction('test_action', 'This is an action for testing purposes', [mockTool], mockLLMProvider);
+  describe('构造函数', () => {
+    it('应使用包括 write_context 在内的工具创建操作', () => {
+      const action = ActionImpl.createPromptAction('test_action', '此操作用于测试', [mockTool], mockLLMProvider);
 
       expect(action.tools).toHaveLength(2); // Original tool + write_context
       expect(action.tools.some((t) => t.name === 'write_context')).toBeTruthy();
@@ -113,130 +113,130 @@ describe('ActionImpl', () => {
     });
   });
 
-  describe('execute', () => {
-    it('should handle successful tool execution', async () => {
-      // Setup LLM to make a tool call
+  describe('执行', () => {
+    it('应处理成功的工具执行', async () => {
+      // 设置 LLM 以进行工具调用
       mockLLMProvider = new MockLLMProvider([
-        { name: 'test_tool', input: { testParam: 'test' } },
-        { name: 'return_output', input: { value: 'test return' } },
+        { name: 'test_tool', input: { testParam: '测试' } },
+        { name: 'return_output', input: { value: '测试返回' } },
       ]);
 
-      const action = ActionImpl.createPromptAction('test_action', 'This is an action for testing purposes', [mockTool], mockLLMProvider);
+      const action = ActionImpl.createPromptAction('test_action', '此操作用于测试', [mockTool], mockLLMProvider);
 
       const nodeInput: NodeInput = { items: [] };
-      nodeInput.items.push({ name: 'test_input', description: 'Test input' } as NodeOutput);
+      nodeInput.items.push({ name: 'test_input', description: '测试输入' } as NodeOutput);
       await action.execute(nodeInput, context);
-      // Tool was successful, no errors thrown
+      // 工具运行成功，未出现错误
     });
 
-    it('should handle tool execution failure', async () => {
-      // Setup failing tool
+    it('应处理失败的工具执行', async () => {
+      // 设置失败工具
       mockTool = new MockTool('test_tool', 'Mock tool', true);
       mockLLMProvider = new MockLLMProvider([
-        { name: 'test_tool', input: { testParam: 'test' } },
-        { name: 'return_output', input: { value: 'test return' } },
+        { name: 'test_tool', input: { testParam: '测试' } },
+        { name: 'return_output', input: { value: '测试返回' } },
     ]);
 
-      const action = ActionImpl.createPromptAction('test_action', 'This is an action for testing purposes', [mockTool], mockLLMProvider);
+      const action = ActionImpl.createPromptAction('test_action', '此操作用于测试', [mockTool], mockLLMProvider);
 
       const nodeInput: NodeInput = { items: [] };
       nodeInput.items.push({ name: 'test_input', description: 'Test input' } as NodeOutput);
       await action.execute(nodeInput, context);
-      // Should handle tool failure gracefully, no error thrown
+      // 应优雅地处理工具故障，不抛出错误
     });
 
-    it('should handle LLM provider failure', async () => {
+    it('应处理错误的LLM提供商', async () => {
       mockLLMProvider = new MockLLMProvider([], true);
 
-      const action = ActionImpl.createPromptAction('test_action', 'This is an action for testing purposes', [mockTool], mockLLMProvider);
+      const action = ActionImpl.createPromptAction('test_action', '此操作用于测试', [mockTool], mockLLMProvider);
 
       const nodeInput: NodeInput = { items: [] };
-      nodeInput.items.push({ name: 'test_input', description: 'Test input' } as NodeOutput)
+      nodeInput.items.push({ name: 'test_input', description: '测试输入' } as NodeOutput)
       await expect(action.execute(nodeInput, context)).resolves.toBeDefined();
-      // Should handle LLM failure gracefully
+      // 应优雅地处理 LLM 故障
     });
 
-    it('should properly use write_context tool', async () => {
-      // Setup LLM to make a write_context call
+    it('应该正确地使用 write_context 工具', async () => {
+      // 设置 LLM 以进行写入上下文调用
       mockLLMProvider = new MockLLMProvider([
         {
           name: 'write_context',
-          input: { key: 'test_key', value: JSON.stringify({ data: 'test' }) },
+          input: { key: 'test_key', value: JSON.stringify({ data: '测试' }) },
         },
-        { name: 'return_output', input: { value: 'test return' } },
+        { name: 'return_output', input: { value: '测试返回' } },
       ]);
 
-      const action = ActionImpl.createPromptAction('test_action', 'This is an action for testing purposes', [mockTool], mockLLMProvider);
+      const action = ActionImpl.createPromptAction('test_action', '此操作用于测试', [mockTool], mockLLMProvider);
       const nodeInput: NodeInput = { items: [] };
-      nodeInput.items.push({ name: 'test_input', description: 'Test input' } as NodeOutput)
+      nodeInput.items.push({ name: 'test_input', description: '测试输入' } as NodeOutput)
       await action.execute(nodeInput, context);
 
-      // Check if value was written to context
-      expect(context.variables.get('test_key')).toEqual({ data: 'test' });
+      // 检查是否已将值写入上下文
+      expect(context.variables.get('test_key')).toEqual({ data: '测试' });
     });
 
-    it('should handle non-JSON values in write_context', async () => {
-      // Setup LLM to make a write_context call with string value
+    it('应处理 write_context 中的非 JSON 值', async () => {
+      // 设置LLM以使用 string 值进行 write_context 调用
       mockLLMProvider = new MockLLMProvider([
         {
           name: 'write_context',
-          input: { key: 'test_key', value: 'plain text value' },
+          input: { key: 'test_key', value: '纯文本值' },
         },
-        { name: 'return_output', input: { value: 'test return' } },
+        { name: 'return_output', input: { value: '测试返回' } },
       ]);
 
-      const action = ActionImpl.createPromptAction('test_action', 'This is an action for testing purposes', [mockTool], mockLLMProvider);
+      const action = ActionImpl.createPromptAction('test_action', '此操作用于测试', [mockTool], mockLLMProvider);
       const nodeInput: NodeInput = { items: [] };
-      nodeInput.items.push({ name: 'test_input', description: 'Test input' } as NodeOutput)
+      nodeInput.items.push({ name: 'test_input', description: '测试输入' } as NodeOutput)
       await action.execute(nodeInput, context);
 
-      // Check if value was written to context as string
+      // 检查值是否以字符串形式写入上下文
       expect(context.variables.get('test_key')).toBe('plain text value');
     });
 
-    it('should include context variables in user prompt', async () => {
-      // Setup context with some variables
+    it('应该在用户提示中包含上下文变量', async () => {
+      // 使用一些变量设置上下文
       context.variables.set('existingVar', 'test value');
 
-      // Create mock LLM provider that captures messages
+      // 创建捕获消息的模拟 LLM 提供者
       const capturedMessages: Message[] = [];
       const mockLLMProviderWithCapture = new MockLLMProvider();
       mockLLMProviderWithCapture.generateStream = async (messages, params, handler) => {
         capturedMessages.push(...messages);
-        // Continue with normal stream handling
+        // 继续进行正常的数据流处理
         await handler.onContent?.('Test content');
       };
 
       const action = ActionImpl.createPromptAction(
-        'test_action', 'This is an action for testing purposes',
+        'test_action', '此操作用于测试',
         [mockTool],
         mockLLMProviderWithCapture
       );
       const nodeInput: NodeInput = { items: [] };
-      nodeInput.items.push({ name: 'test_input', description: 'Test input' } as NodeOutput)
+      nodeInput.items.push({ name: 'test_input', description: '测试输入' } as NodeOutput)
       await action.execute(nodeInput, context);
 
-      // Verify system prompt includes context variables
+      // 验证系统提示是否包含上下文变量
       const initialPrompt = capturedMessages[1].content as string;
       expect(initialPrompt).toContain('existingVar');
       expect(initialPrompt).toContain('test value');
     });
 
-    it('should merge action tools with context tools', async () => {
+    it('应合并操作工具与上下文工具', async () => {
       const contextTool = new MockTool('context_tool');
       context.tools?.set(contextTool.name, contextTool);
 
       mockLLMProvider = new MockLLMProvider([
-        { name: 'context_tool', input: { testParam: 'test' } },
-        { name: 'test_tool', input: { testParam: 'test' } },
-        { name: 'return_output', input: { value: 'test return' } },
+        { name: 'context_tool', input: { testParam: '测试' } },
+        { name: 'test_tool', input: { testParam: '测试' } },
+        { name: 'return_output', input: { value: '测试返回' } },
       ]);
 
-      const action = ActionImpl.createPromptAction('test_action', 'This is an action for testing purposes', [mockTool], mockLLMProvider);
+      const action = ActionImpl.createPromptAction('test_action', '此操作用于测试', [mockTool], mockLLMProvider);
       const nodeInput: NodeInput = { items: [] };
-      nodeInput.items.push({ name: 'test_input', description: 'Test input' } as NodeOutput)
+      nodeInput.items.push({ name: 'test_input', description: '测试输入' } as NodeOutput)
       await action.execute(nodeInput, context);
-      // Both tools should have been accessible
+      // 这两个工具都应该是可访问的
     });
   });
 });

@@ -1,8 +1,8 @@
 /**
- * Get clickable elements on the page
+ * 获取所有常规可点击元素
  *
- * @param {*} doHighlightElements Is highlighted
- * @param {*} includeAttributes [attr_names...]
+ * @param {*} 高亮显示元素
+ * @param {*} 包括属性 [attr_names...]
  * @returns { element_str, selector_map }
  */
 export function get_clickable_elements(doHighlightElements = true, includeAttributes) {
@@ -161,10 +161,10 @@ function parse_node(node_data, parent) {
 }
 
 function build_dom_tree(doHighlightElements) {
-  let highlightIndex = 0; // Reset highlight index
+  let highlightIndex = 0; // 重置高亮索引
 
   function highlightElement(element, index, parentIframe = null) {
-    // Create or get highlight container
+    // 创建或获取高亮容器
     let container = document.getElementById('playwright-highlight-container');
     if (!container) {
       container = document.createElement('div');
@@ -175,11 +175,11 @@ function build_dom_tree(doHighlightElements) {
       container.style.left = '0';
       container.style.width = '100%';
       container.style.height = '100%';
-      container.style.zIndex = '2147483647'; // Maximum z-index value
+      container.style.zIndex = '2147483647'; // 最大 z 索引值
       document.documentElement.appendChild(container);
     }
 
-    // Generate a color based on the index
+    // 根据索引生成颜色
     const colors = [
       '#FF0000',
       '#00FF00',
@@ -196,16 +196,16 @@ function build_dom_tree(doHighlightElements) {
     ];
     const colorIndex = index % colors.length;
     const baseColor = colors[colorIndex];
-    const backgroundColor = `${baseColor}1A`; // 10% opacity version of the color
+    const backgroundColor = `${baseColor}1A`; // 不透明度为 10% 的颜色
 
-    // Create highlight overlay
+    // 创建高亮叠加
     const overlay = document.createElement('div');
     overlay.style.position = 'absolute';
     overlay.style.border = `2px solid ${baseColor}`;
     overlay.style.pointerEvents = 'none';
     overlay.style.boxSizing = 'border-box';
 
-    // Position overlay based on element
+    // 根据元素定位叠加
     const rect = element.getBoundingClientRect();
     let top = rect.top;
     let left = rect.left;
@@ -214,7 +214,7 @@ function build_dom_tree(doHighlightElements) {
       overlay.style.backgroundColor = backgroundColor;
     }
 
-    // Adjust position if element is inside an iframe
+    // 如果元素位于 iframe 内，则调整位置
     if (parentIframe) {
       const iframeRect = parentIframe.getBoundingClientRect();
       top += iframeRect.top;
@@ -226,7 +226,7 @@ function build_dom_tree(doHighlightElements) {
     overlay.style.width = `${rect.width}px`;
     overlay.style.height = `${rect.height}px`;
 
-    // Create label
+    // 创建标签
     const label = document.createElement('div');
     label.className = 'playwright-highlight-label';
     label.style.position = 'absolute';
@@ -234,25 +234,24 @@ function build_dom_tree(doHighlightElements) {
     label.style.color = 'white';
     label.style.padding = '1px 4px';
     label.style.borderRadius = '4px';
-    label.style.fontSize = `${Math.min(12, Math.max(8, rect.height / 2))}px`; // Responsive font size
+    label.style.fontSize = `${Math.min(12, Math.max(8, rect.height / 2))}px`; // 响应式字体大小
     label.textContent = index;
 
-    // Calculate label position
-    const labelWidth = 20; // Approximate width
-    const labelHeight = 16; // Approximate height
-
-    // Default position (top-right corner inside the box)
+    // 计算标签位置
+    const labelWidth = 20; // 大致宽度
+    const labelHeight = 16; // 大致高度
+    // 默认位置（框内右上角）
     let labelTop = top + 2;
     let labelLeft = left + rect.width - labelWidth - 2;
 
-    // Adjust if box is too small
+    // 如果方框太小，则进行调整
     if (rect.width < labelWidth + 4 || rect.height < labelHeight + 4) {
-      // Position outside the box if it's too small
+      // 如果方框太小，则在方框外定位
       labelTop = top - labelHeight - 2;
       labelLeft = left + rect.width - labelWidth;
     }
 
-    // Ensure label stays within viewport
+    // 确保标签保持在视窗内
     if (labelTop < 0) labelTop = top + 2;
     if (labelLeft < 0) labelLeft = left + 2;
     if (labelLeft + labelWidth > window.innerWidth) {
@@ -262,23 +261,23 @@ function build_dom_tree(doHighlightElements) {
     label.style.top = `${labelTop}px`;
     label.style.left = `${labelLeft}px`;
 
-    // Add to container
+    // 添加到容器中
     container.appendChild(overlay);
     container.appendChild(label);
 
-    // Store reference for cleanup
+    // 存储参考信息以便清理
     element.setAttribute('browser-user-highlight-id', `playwright-highlight-${index}`);
 
     return index + 1;
   }
 
-  // Helper function to generate XPath as a tree
+  // 辅助函数，以树形式生成 XPath
   function getXPathTree(element, stopAtBoundary = true) {
     const segments = [];
     let currentElement = element;
 
     while (currentElement && currentElement.nodeType === Node.ELEMENT_NODE) {
-      // Stop if we hit a shadow root or iframe
+      // 如果遇到阴影根节点或 iframe，则停止运行
       if (
         stopAtBoundary &&
         (currentElement.parentNode instanceof ShadowRoot ||
@@ -309,15 +308,15 @@ function build_dom_tree(doHighlightElements) {
     return segments.join('/');
   }
 
-  // Helper function to check if element is accepted
+  // 辅助函数，用于检查元素是否被接受
   function isElementAccepted(element) {
     const leafElementDenyList = new Set(['svg', 'script', 'style', 'link', 'meta']);
     return !leafElementDenyList.has(element.tagName.toLowerCase());
   }
 
-  // Helper function to check if element is interactive
+  // 辅助函数，用于检查元素是否交互
   function isInteractiveElement(element) {
-    // Base interactive elements and roles
+    // 基础互动元素和作用
     const interactiveElements = new Set([
       'a',
       'button',
@@ -375,7 +374,7 @@ function build_dom_tree(doHighlightElements) {
     const ariaRole = element.getAttribute('aria-role');
     const tabIndex = element.getAttribute('tabindex');
 
-    // Basic role/attribute checks
+    // 基础角色/属性检查
     const hasInteractiveRole =
       interactiveElements.has(tagName) ||
       interactiveRoles.has(role) ||
@@ -386,15 +385,15 @@ function build_dom_tree(doHighlightElements) {
 
     if (hasInteractiveRole) return true;
 
-    // Get computed style
+    // 获取计算样式
     const style = window.getComputedStyle(element);
 
-    // Check if element has click-like styling
+    // 检查元素是否具有类似点击的样式
     // const hasClickStyling = style.cursor === 'pointer' ||
     //     element.style.cursor === 'pointer' ||
     //     style.pointerEvents !== 'none';
 
-    // Check for event listeners
+    // 检查事件监听器
     const hasClickHandler =
       element.onclick !== null ||
       element.getAttribute('onclick') !== null ||
@@ -402,16 +401,16 @@ function build_dom_tree(doHighlightElements) {
       element.hasAttribute('@click') ||
       element.hasAttribute('v-on:click');
 
-    // Helper function to safely get event listeners
+    // 辅助函数，用于安全地获取事件侦听器
     function getEventListeners(el) {
       try {
-        // Try to get listeners using Chrome DevTools API
+        // 尝试使用 Chrome DevTools API 获取侦听器
         return window.getEventListeners?.(el) || {};
       } catch (e) {
-        // Fallback: check for common event properties
+        // Fallback: 检查常见事件属性
         const listeners = {};
 
-        // List of common event types to check
+        // 需要检查的常见事件类型列表
         const eventTypes = [
           'click',
           'mousedown',
@@ -440,7 +439,7 @@ function build_dom_tree(doHighlightElements) {
       }
     }
 
-    // Check for click-related events on the element itself
+    // 检查元素本身是否存在与点击相关的事件
     const listeners = getEventListeners(element);
     const hasClickListeners =
       listeners &&
@@ -450,20 +449,20 @@ function build_dom_tree(doHighlightElements) {
         listeners.touchstart?.length > 0 ||
         listeners.touchend?.length > 0);
 
-    // Check for ARIA properties that suggest interactivity
+    // 检查表明具有交互性的 ARIA 属性
     const hasAriaProps =
       element.hasAttribute('aria-expanded') ||
       element.hasAttribute('aria-pressed') ||
       element.hasAttribute('aria-selected') ||
       element.hasAttribute('aria-checked');
 
-    // Check for form-related functionality
+    // 检查表单相关功能
     const isFormRelated =
       element.form !== undefined ||
       element.hasAttribute('contenteditable') ||
       style.userSelect !== 'none';
 
-    // Check if element is draggable
+    // 检查元素是否可拖曳
     const isDraggable = element.draggable || element.getAttribute('draggable') === 'true';
 
     return (
@@ -476,7 +475,7 @@ function build_dom_tree(doHighlightElements) {
     );
   }
 
-  // Helper function to check if element is visible
+  // 辅助函数，用于检查元素是否可见
   function isElementVisible(element) {
     const style = window.getComputedStyle(element);
     return (
@@ -487,28 +486,28 @@ function build_dom_tree(doHighlightElements) {
     );
   }
 
-  // Helper function to check if element is the top element at its position
+  // 辅助函数，用于检查元素是否是其所在位置的顶层元素
   function isTopElement(element) {
-    // Find the correct document context and root element
+    // 查找正确的文档上下文和根元素
     let doc = element.ownerDocument;
 
-    // If we're in an iframe, elements are considered top by default
+    // 如果在 iframe 中，默认情况下元素会被置于顶部
     if (doc !== window.document) {
       return true;
     }
 
-    // For shadow DOM, we need to check within its own root context
+    // 对于 Shadow DOM，需要在其根上下文中进行检查
     const shadowRoot = element.getRootNode();
     if (shadowRoot instanceof ShadowRoot) {
       const rect = element.getBoundingClientRect();
       const point = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 
       try {
-        // Use shadow root's elementFromPoint to check within shadow DOM context
+        // 使用 Shadow 根的 elementFromPoint 在 Shadow DOM 上下文中进行检查
         const topEl = shadowRoot.elementFromPoint(point.x, point.y);
         if (!topEl) return false;
 
-        // Check if the element or any of its parents match our target element
+        // 检查元素或其任何父级元素是否与目标元素匹配
         let current = topEl;
         while (current && current !== shadowRoot) {
           if (current === element) return true;
@@ -516,11 +515,11 @@ function build_dom_tree(doHighlightElements) {
         }
         return false;
       } catch (e) {
-        return true; // If we can't determine, consider it visible
+        return true; // 如果无法确定，就认为它是可见的
       }
     }
 
-    // Regular DOM elements
+    // 常规 DOM 元素
     const rect = element.getBoundingClientRect();
     const point = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 
@@ -539,7 +538,7 @@ function build_dom_tree(doHighlightElements) {
     }
   }
 
-  // Helper function to check if text node is visible
+  // 辅助函数，用于检查文本节点是否可见
   function isTextNodeVisible(textNode) {
     const range = document.createRange();
     range.selectNodeContents(textNode);
@@ -557,11 +556,11 @@ function build_dom_tree(doHighlightElements) {
     );
   }
 
-  // Function to traverse the DOM and create nested JSON
+  // 遍历 DOM 并创建嵌套 JSON 的函数
   function buildDomTree(node, parentIframe = null) {
     if (!node) return null;
 
-    // Special case for text nodes
+    // 文本节点特例
     if (node.nodeType === Node.TEXT_NODE) {
       const textContent = node.textContent.trim();
       if (textContent && isTextNodeVisible(node)) {
@@ -574,7 +573,7 @@ function build_dom_tree(doHighlightElements) {
       return null;
     }
 
-    // Check if element is accepted
+    // 检查元素是否已被接受
     if (node.nodeType === Node.ELEMENT_NODE && !isElementAccepted(node)) {
       return null;
     }
@@ -586,9 +585,9 @@ function build_dom_tree(doHighlightElements) {
       children: [],
     };
 
-    // Copy all attributes if the node is an element
+    // 如果节点是元素，则复制所有属性
     if (node.nodeType === Node.ELEMENT_NODE && node.attributes) {
-      // Use getAttributeNames() instead of directly iterating attributes
+      // 使用 getAttributeNames() 代替直接迭代属性
       const attributeNames = node.getAttributeNames?.() || [];
       for (const name of attributeNames) {
         nodeData.attributes[name] = node.getAttribute(name);
@@ -604,7 +603,7 @@ function build_dom_tree(doHighlightElements) {
       nodeData.isVisible = isVisible;
       nodeData.isTopElement = isTop;
 
-      // Highlight if element meets all criteria and highlighting is enabled
+      // 如果元素符合所有标准并启用高亮显示，则高亮显示
       if (isInteractive && isVisible && isTop) {
         nodeData.highlightIndex = highlightIndex++;
         window.clickable_elements[nodeData.highlightIndex] = node;
@@ -614,17 +613,17 @@ function build_dom_tree(doHighlightElements) {
       }
     }
 
-    // Only add iframeContext if we're inside an iframe
+    // 只有在 iframe 内才添加 iframeContext
     // if (parentIframe) {
     //     nodeData.iframeContext = `iframe[src="${parentIframe.src || ''}"]`;
     // }
 
-    // Only add shadowRoot field if it exists
+    // 仅在 Shadow 根字段存在时添加该字段
     if (node.shadowRoot) {
       nodeData.shadowRoot = true;
     }
 
-    // Handle shadow DOM
+    // 处理 shadow DOM
     if (node.shadowRoot) {
       const shadowChildren = Array.from(node.shadowRoot.childNodes).map((child) =>
         buildDomTree(child, parentIframe)
@@ -632,7 +631,7 @@ function build_dom_tree(doHighlightElements) {
       nodeData.children.push(...shadowChildren);
     }
 
-    // Handle iframes
+    // 处理 iframes
     if (node.tagName === 'IFRAME') {
       try {
         const iframeDoc = node.contentDocument || node.contentWindow.document;
@@ -643,7 +642,7 @@ function build_dom_tree(doHighlightElements) {
           nodeData.children.push(...iframeChildren);
         }
       } catch (e) {
-        console.warn('Unable to access iframe:', node);
+        console.warn('无法访问 iframe：', node);
       }
     } else {
       const children = Array.from(node.childNodes).map((child) =>

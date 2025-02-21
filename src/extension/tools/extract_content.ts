@@ -3,7 +3,7 @@ import { Tool, InputSchema, ExecutionContext } from '../../types/action.types';
 import { getTabId, executeScript, injectScript, sleep } from '../utils';
 
 /**
- * Extract Page Content
+ * 提取页面内容
  */
 export class ExtractContent implements Tool<any, ExtractContentResult> {
   name: string;
@@ -12,7 +12,7 @@ export class ExtractContent implements Tool<any, ExtractContentResult> {
 
   constructor() {
     this.name = 'extract_content';
-    this.description = 'Extract the text content of the current webpage';
+    this.description = '提取当前网页的文本内容';
     this.input_schema = {
       type: 'object',
       properties: {},
@@ -20,7 +20,7 @@ export class ExtractContent implements Tool<any, ExtractContentResult> {
   }
 
   /**
-   * Extract Page Content
+   * 提取页面内容
    *
    * @param {*} params {}
    * @returns > { tabId, result: { title, url, content }, success: true }

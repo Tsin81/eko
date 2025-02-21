@@ -6,11 +6,11 @@ import { ExportFileParam } from "./tools.types";
 export interface NodeOutput {
   name: string;
   description: string;
-  value?: unknown;      // filled after execution
+  value?: unknown;      // 在执行后填充
 }
 
 export interface NodeInput {
-  items: NodeOutput[];  // populated by the outputs of the dependencies before execution
+  items: NodeOutput[];  // 在执行前由依赖项的输出填充
 }
 
 export interface WorkflowNode {

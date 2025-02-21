@@ -3,7 +3,7 @@ import { ComputerUseParam, ComputerUseResult } from '../../types/tools.types';
 import { Tool, InputSchema, ExecutionContext } from '../../types/action.types';
 
 /**
- * Computer Use for fellou
+ * Fellou 计算机使用工具
  */
 export class ComputerUse implements Tool<ComputerUseParam, ComputerUseResult> {
   name: string;
@@ -12,31 +12,31 @@ export class ComputerUse implements Tool<ComputerUseParam, ComputerUseResult> {
 
   constructor() {
     this.name = 'computer_use';
-    this.description = `Use a mouse and keyboard to interact with a computer, and take screenshots.
-* This is a browser GUI interface where you do not have access to the address bar or bookmarks. You must operate the browser using inputs like screenshots, mouse, keyboard, etc.
-* Some operations may take time to process, so you may need to wait and take successive screenshots to see the results of your actions. E.g. if you clicked submit button, but it didn't work, try taking another screenshot.
-* Whenever you intend to move the cursor to click on an element, you should consult a screenshot to determine the coordinates of the element before moving the cursor.
-* If you tried clicking on a button or link but it failed to load, even after waiting, try adjusting your cursor position so that the tip of the cursor visually falls on the element that you want to click.
-* Make sure to click any buttons, links, icons, etc with the cursor tip in the center of the element.`;
+    this.description = `使用鼠标和键盘与计算机交互，并进行屏幕截图。
+* 这是一个浏览器图形界面，你无法访问地址栏或书签。必须通过截图、鼠标、键盘等输入方式操作浏览器。
+* 某些操作需要处理时间，你可能需要等待并通过连续截图观察操作结果（例如点击提交按钮未响应时，请尝试重新截图）
+* 在移动光标点击元素前，必须先通过截图确认目标元素的坐标位置。
+* 若点击按钮/链接后未成功加载（即使已等待），请调整光标位置使光标尖端准确指向目标元素。
+* 确保点击按钮/链接/图标等元素时，光标尖端始终位于元素中心位置`;
     this.input_schema = {
       type: 'object',
       properties: {
         action: {
           type: 'string',
-          description: `The action to perform. The available actions are:
-* \`key\`: Press a key or key-combination on the keyboard.
-- This supports robotgo hotkey syntax.
-- Multiple keys are combined using the "+" symbol.
-- Examples: "a", "enter", "ctrl+s", "command+shift+a", "num0".
-* \`type\`: Type a string of text on the keyboard.
-* \`cursor_position\`: Get the current (x, y) pixel coordinate of the cursor on the screen.
-* \`mouse_move\`: Move the cursor to a specified (x, y) pixel coordinate on the screen.
-* \`left_click\`: Click the left mouse button.
-* \`left_click_drag\`: Click and drag the cursor to a specified (x, y) pixel coordinate on the screen.
-* \`right_click\`: Click the right mouse button.
-* \`double_click\`: Double-click the left mouse button.
-* \`screenshot\`: Take a screenshot of the screen.
-* \`scroll\`: Scroll to the specified (x, y) pixel coordinates on the screen.`,
+          description: `需执行的操作类型，可选值包括：
+* \`key\`：触发键盘按键或组合键。
+- 支持 robotgo 热键语法。
+- 多键组合使用"+"符号连接。
+- 示例："a"、"enter"、"ctrl+s"、"command+shift+a"、"num0"。
+* \`type\`: 输入文本字符串。
+* \`cursor_position\`: 获取光标当前屏幕像素坐标(x, y)。
+* \`mouse_move\`: 移动光标至指定屏幕像素坐标(x, y)。
+* \`left_click\`: 左键单击。
+* \`left_click_drag\`: 左键拖拽至指定坐标(x, y)。
+* \`right_click\`: 右键单击。
+* \`double_click\`: 左键双击。
+* \`screenshot\`: 屏幕截图。
+* \`scroll\`: 滚动至指定屏幕坐标(x, y)。`,
           enum: [
             'key',
             'type',
@@ -53,11 +53,11 @@ export class ComputerUse implements Tool<ComputerUseParam, ComputerUseResult> {
         coordinate: {
           type: 'array',
           description:
-            '(x, y): The x (pixels from the left edge) and y (pixels from the top edge) coordinates to move the mouse to.',
+            '(x, y): 目标坐标，x表示距屏幕左边缘像素数，y表示距屏幕上边缘像素数。',
         },
         text: {
           type: 'string',
-          description: 'Required only by `action=type` and `action=key`',
+          description: '仅当 `action=type` 或 `action=key` 时必填。',
         },
       },
       required: ['action'],
@@ -65,14 +65,14 @@ export class ComputerUse implements Tool<ComputerUseParam, ComputerUseResult> {
   }
 
   /**
-   * computer
+   * 计算机
    *
    * @param {*} params { action: 'mouse_move', coordinate: [100, 200] }
    * @returns { success: true, coordinate?: [], image?: { type: 'base64', media_type: 'image/jpeg', data: '/9j...' } }
    */
   async execute(context: ExecutionContext, params: ComputerUseParam): Promise<ComputerUseResult> {
     if (params === null || !params.action) {
-      throw new Error('Invalid parameters. Expected an object with a "action" property.');
+      throw new Error('参数无效。期望对象具有 “action” 属性。');
     }
     let result;
     switch (params.action) {
@@ -108,7 +108,7 @@ export class ComputerUse implements Tool<ComputerUseParam, ComputerUseResult> {
         break;
       default:
         throw Error(
-          `Invalid parameters. The "${params.action}" value is not included in the "action" enumeration.`
+          `参数无效。${params.action} 值未包含在 “action” 枚举中。`
         );
     }
     if (typeof result == 'boolean') {

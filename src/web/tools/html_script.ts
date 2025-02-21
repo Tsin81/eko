@@ -105,10 +105,10 @@ export function queryWithXpath(xpath: string) {
 }
 
 /**
- * Extract the elements related to html operability and wrap them into pseudo-html code.
+ * 提取与HTML操作相关的元素，并将它们封装为HTML伪代码。
  */
 export function extractOperableElements(): string {
-  // visible
+  // 可见
   const isElementVisible = (element: any) => {
     const style = window.getComputedStyle(element);
     return (
@@ -120,7 +120,7 @@ export function extractOperableElements(): string {
     );
   };
 
-  // element original index
+  // 元素原始索引
   const getElementIndex = (element: any) => {
     const xpath = document.evaluate(
       'preceding::*',
@@ -132,7 +132,7 @@ export function extractOperableElements(): string {
     return xpath.snapshotLength;
   };
 
-  // exclude
+  // 排除
   const addExclude = (excludes: any, children: any) => {
     for (let i = 0; i < children.length; i++) {
       excludes.push(children[i]);
@@ -148,7 +148,7 @@ export function extractOperableElements(): string {
   let elements = [] as any[];
   let excludes = [] as any[];
 
-  // operable element
+  // 可操作元素
   const operableSelectors = 'a, button, input, textarea, select';
   document.querySelectorAll(operableSelectors).forEach((element: any) => {
     if (isElementVisible(element) && excludes.indexOf(element) == -1) {
@@ -173,11 +173,11 @@ export function extractOperableElements(): string {
     }
   });
 
-  // short text element
+  // 短文本元素
   const textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
     acceptNode: function (node: any) {
       if (node.matches(operableSelectors) || excludes.indexOf(node) != -1) {
-        // skip
+        // 跳过
         return NodeFilter.FILTER_SKIP;
       }
 
@@ -193,7 +193,7 @@ export function extractOperableElements(): string {
         return NodeFilter.FILTER_ACCEPT;
       }
 
-      // skip
+      // 跳过
       return NodeFilter.FILTER_SKIP;
     },
   });
@@ -211,12 +211,12 @@ export function extractOperableElements(): string {
     });
   }
 
-  // element sort
+  // 元素排序
   elements.sort((a, b) => a.originalIndex - b.originalIndex);
 
-  // cache
+  // 缓存
   (window as any).operableElementMap = elementMap;
-  // pseudo html
+  // 伪HTML
   return elements.map((e) => e.html).join('\n');
 }
 

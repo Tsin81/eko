@@ -11,7 +11,7 @@ export class RequestLogin implements Tool<any, any> {
   constructor() {
     this.name = 'request_login';
     this.description =
-      'Login to this website, assist with identity verification when manual intervention is needed, guide users through the login process, and wait for their confirmation of successful login.';
+      '登录本网站，在需要人工干预时协助身份验证，指导用户完成登录过程，并等待用户确认登录成功。';
     this.input_schema = {
       type: 'object',
       properties: {},
@@ -29,7 +29,7 @@ export class RequestLogin implements Tool<any, any> {
         type: 'request_user_help',
         task_id,
         failure_type: 'login_required',
-        failure_message: 'Access page require user authentication.',
+        failure_message: '访问页面需要进行用户验证。',
       });
     };
     const login_interval = setInterval(async () => {
@@ -79,7 +79,7 @@ export class RequestLogin implements Tool<any, any> {
           },
           {
             type: 'text',
-            text: 'Check if the current website is logged in. If not logged in, output `NOT_LOGIN`. If logged in, output `LOGGED_IN`. Output directly without explanation.',
+            text: '检查当前网站是否已登录。如果未登录，则输出 `NOT_LOGIN`。如果已登录，则输出 `LOGGED_IN`。直接输出，无需解释。',
           },
         ],
       },

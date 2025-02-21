@@ -7,17 +7,17 @@ dotenv.config();
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_BASE_URL = process.env.OPENAI_BASE_URL;
 if (!OPENAI_API_KEY) {
-  throw new Error('OPENAI_API_KEY environment variable is required for integration tests');
+  throw new Error('集成测试需要 OPENAI_API_KEY 环境变量');
 }
 
-// Only run these tests if explicitly enabled
+// 仅在明确启用的情况下运行这些测试
 const ENABLE_INTEGRATION_TESTS = process.env.ENABLE_INTEGRATION_TESTS === 'true';
 const describeIntegration = ENABLE_INTEGRATION_TESTS ? describe : describe.skip;
 
-// Default model for all tests
+// 所有测试的默认模型
 const DEFAULT_MODEL = 'gpt-4o-mini';
 
-describeIntegration('OpenaiProvider Integration', () => {
+describeIntegration('OpenaiProvider 集成', () => {
   let provider: OpenaiProvider;
 
   beforeAll(() => {
@@ -26,7 +26,7 @@ describeIntegration('OpenaiProvider Integration', () => {
     });
   });
 
-  describe('generateText', () => {
+  describe('生成文本', () => {
     const params: LLMParameters = {
       temperature: 0.7,
       maxTokens: 1000,
@@ -36,13 +36,13 @@ describeIntegration('OpenaiProvider Integration', () => {
       tools: [
         {
           name: 'calculate',
-          description: 'Performs a calculation and returns the result',
+          description: '执行计算并返回结果',
           input_schema: {
             type: 'object',
             properties: {
               expression: {
                 type: 'string',
-                description: 'The mathematical expression to calculate',
+                description: '用于计算的数学表达式',
               },
             },
             required: ['expression'],
@@ -52,11 +52,11 @@ describeIntegration('OpenaiProvider Integration', () => {
       toolChoice: { type: 'auto' },
     };
 
-    test('should generate simple text response', async () => {
+    test('应生成简单的文本响应', async () => {
       const messages: Message[] = [
         {
           role: 'user',
-          content: 'What is 2+2? Please respond with just the number.',
+          content: '2+2 的结果是多少？请只回答数字。',
         },
       ];
 
@@ -66,11 +66,11 @@ describeIntegration('OpenaiProvider Integration', () => {
       expect(result.stop_reason).toBe('stop');
     }, 30000);
 
-    test('should use tools when provided', async () => {
+    test('应使用提供的工具', async () => {
       const messages: Message[] = [
         {
           role: 'user',
-          content: 'What is 234 * 456?',
+          content: '234 * 456 的结果是多少？',
         },
       ];
 
@@ -81,10 +81,10 @@ describeIntegration('OpenaiProvider Integration', () => {
       expect(result.stop_reason).toBe('tool_calls');
     }, 30000);
 
-    it('should handle multi-turn conversation', async () => {
+    it('应处理多轮对话', async () => {
       const user_message: Message = {
         role: 'user',
-        content: 'What is 234 * 456?',
+        content: '234 * 456 的结果是多少？',
       };
       const messages_1: Message[] = [user_message];
       const result_1 = await provider.generateText(messages_1, toolParams);
@@ -113,8 +113,8 @@ describeIntegration('OpenaiProvider Integration', () => {
     }, 30000);
   });
 
-  describe('generateStream', () => {
-    it('should stream text content', async () => {
+  describe('生成内容流', () => {
+    it('应为文本内容流', async () => {
       const accumulated: string[] = [];
       let isStarted = false;
       let isCompleted = false;
@@ -137,7 +137,7 @@ describeIntegration('OpenaiProvider Integration', () => {
       const messages: Message[] = [
         {
           role: 'user',
-          content: 'Count from 1 to 3, with each number on a new line (\n).',
+          content: '从 1 数到 3，每个数字换一行。',
         },
       ];
 
@@ -155,7 +155,7 @@ describeIntegration('OpenaiProvider Integration', () => {
       expect(accumulated.join('')).toMatch(/1\s+2\s+3\s?/);
     }, 30000);
 
-    it('should stream tool use', async () => {
+    it('应使用流工具', async () => {
       const toolCalls: any[] = [];
       const handler: LLMStreamHandler = {
         onToolUse: (toolCall) => {
@@ -166,7 +166,7 @@ describeIntegration('OpenaiProvider Integration', () => {
       const messages: Message[] = [
         {
           role: 'user',
-          content: 'What is 123 + 456?',
+          content: '123 + 456 的结果是多少？',
         },
       ];
 
@@ -177,7 +177,7 @@ describeIntegration('OpenaiProvider Integration', () => {
           tools: [
             {
               name: 'calculate',
-              description: 'Performs a calculation',
+              description: '执行计算',
               input_schema: {
                 type: 'object',
                 properties: {

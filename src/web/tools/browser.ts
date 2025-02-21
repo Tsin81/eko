@@ -141,13 +141,13 @@ export function select_dropdown_option(text: string, xpath?: string, highlightIn
       .singleNodeValue as any;
   }
   if (!select || select.tagName.toUpperCase() !== 'SELECT') {
-    return { success: false, error: 'Select not found or invalid element type' };
+    return { success: false, error: '选择未找到或元素类型无效' };
   }
   const option = Array.from(select.options).find((opt: any) => opt.text.trim() === text) as any;
   if (!option) {
     return {
       success: false,
-      error: 'Option not found',
+      error: '未找到选项',
       availableOptions: Array.from(select.options).map((o: any) => o.text.trim()),
     };
   }

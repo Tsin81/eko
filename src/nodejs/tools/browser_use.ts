@@ -4,7 +4,7 @@ import { chromium, Browser, Page, ElementHandle, BrowserContext } from 'playwrig
 import { run_build_dom_tree } from '../script/build_dom_tree';
 
 /**
- * Browser Use => `npx playwright install`
+ * 浏览器使用 => `npx playwright install`
  */
 export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
   name: string;
@@ -17,37 +17,37 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
 
   constructor() {
     this.name = 'browser_use';
-    this.description = `Use structured commands to interact with the browser, manipulating page elements through screenshots and webpage element extraction.
-* This is a browser GUI interface where you need to analyze webpages by taking screenshots and extracting page element structures, and specify action sequences to complete designated tasks.
-* Before performing element operations, please call the \`screenshot_extract_element\` command first, which will return the browser page screenshot and structured element information, both specially processed.
-* ELEMENT INTERACTION:
-   - Only use indexes that exist in the provided element list
-   - Each element has a unique index number (e.g., "[33]:<button>")
-   - Elements marked with "[]:" are non-interactive (for context only)
-* NAVIGATION & ERROR HANDLING:
-   - If no suitable elements exist, use other functions to complete the task
-   - If stuck, try alternative approaches
-   - Handle popups/cookies by accepting or closing them
-   - Use scroll to find elements you are looking for`;
+    this.description = `使用结构化命令与浏览器交互，通过截图和网页元素提取来操作页面元素。
+* 这是一个浏览器图形界面，你需要通过截图和提取页面元素结构来分析网页，并指定操作序列来完成指定任务。
+* 任何操作前必须首先调用 \`screenshot_extract_element\` 命令，该命令将返回浏览器页面截图和结构化元素信息（两者均经过特殊处理）。
+* 元素交互规则：
+   - 仅使用元素列表中存在的索引
+   - 每个元素都有唯一索引号（如 "[33]:<button>"）
+   - 标有 "[]:" 的元素为不可交互元素（仅用于上下文参考）
+* 导航与错误处理：
+   - 若无合适元素，使用其他功能完成任务
+   - 遇到操作卡顿时尝试替代方案
+   - 通过接受/关闭处理弹窗和Cookie提示
+   - 使用滚动操作查找目标元素`;
     this.input_schema = {
       type: 'object',
       properties: {
         action: {
           type: 'string',
-          description: `The action to perform. The available actions are:
-* \`screenshot_extract_element\`: Take a screenshot of the web page and extract operable elements.
-  - Screenshots are used to understand page layouts, with labeled bounding boxes corresponding to element indexes. Each bounding box and its label share the same color, with labels typically positioned in the top-right corner of the box.
-  - Screenshots help verify element positions and relationships. Labels may sometimes overlap, so extracted elements are used to verify the correct elements.
-  - In addition to screenshots, simplified information about interactive elements is returned, with element indexes corresponding to those in the screenshots.
-* \`open_url\`: . Open the specified URL in the browser, the URL is text parameter.
-* \`input_text\`: Enter a string in the interactive element.
-* \`click\`: Click to element.
-* \`right_click\`: Right-click on the element.
-* \`double_click\`: Double-click on the element.
-* \`scroll_to\`: Scroll to the specified element.
-* \`extract_content\`: Extract the text content of the current webpage.
-* \`get_dropdown_options\`: Get all options from a native dropdown element.
-* \`select_dropdown_option\`: Select dropdown option for interactive element index by the text of the option you want to select.`,
+          description: `要执行的操作。可用的操作包括：
+* \`screenshot_extract_element\`：截取网页截图并提取可操作元素。
+  - 截图用于理解页面布局，标注的边界框对应元素索引。每个边界框及其标签使用相同颜色，标签通常位于框的右上角。
+  - 截图帮助验证元素位置和关系。标签可能偶尔重叠，因此需结合提取的元素信息确认正确元素。
+  - 除截图外，还会返回交互元素的简化信息，元素索引与截图中的索引对应。
+* \`open_url\`：在浏览器中打开指定的 URL，URL 为文本参数。
+* \`input_text\`：在交互元素中输入字符串。
+* \`click\`：点击元素。
+* \`right_click\`：在元素上执行右键点击。
+* \`double_click\`：双击元素。
+* \`scroll_to\`：滚动页面至指定元素位置。
+* \`extract_content\`：提取当前网页的文本内容。
+* \`get_dropdown_options\`：从原生下拉元素中获取所有选项。
+* \`select_dropdown_option\`：根据选项文本为指定交互元素索引选择下拉选项。`,
           enum: [
             'screenshot_extract_element',
             'open_url',
@@ -64,11 +64,11 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
         index: {
           type: 'integer',
           description:
-            'index of element, Operation elements must pass the corresponding index of the element',
+            '元素的索引，操作元素必须传递相应的元素索引',
         },
         text: {
           type: 'string',
-          description: 'Required by action: open_url, input_text, select_dropdown_option',
+          description: '为以下操作执行所必需：open_url, input_text, select_dropdown_option',
         },
       },
       required: ['action'],
@@ -76,7 +76,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
   }
 
   /**
-   * browser
+   * 浏览器
    *
    * @param {*} params { action: 'input_text', index: 1, text: 'string' }
    * @returns > { success: true, image?: { type: 'base64', media_type: 'image/jpeg', data: '/9j...' }, text?: string }
@@ -84,7 +84,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
   async execute(context: ExecutionContext, params: BrowserUseParam): Promise<BrowserUseResult> {
     try {
       if (params === null || !params.action) {
-        throw new Error('Invalid parameters. Expected an object with a "action" property.');
+        throw new Error('参数无效。期望对象具有 “action” 属性。');
       }
       let page = this.current_page as Page;
       let selector_map = context.selector_map;
@@ -92,7 +92,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
       if (params.index != null && selector_map) {
         selector_xpath = selector_map[params.index]?.xpath;
         if (!selector_xpath) {
-          throw new Error('Element does not exist');
+          throw new Error('元素不存在');
         }
       }
       let result;
@@ -100,7 +100,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
       switch (params.action) {
         case 'open_url':
           if (!params.text) {
-            throw new Error('text (url) parameter is required');
+            throw new Error('需要文本（url）参数');
           }
           page = await this.open_url(context, params.text);
           result = {
@@ -111,10 +111,10 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
           break;
         case 'input_text':
           if (params.index == null) {
-            throw new Error('index parameter is required');
+            throw new Error('需要索引参数');
           }
           if (params.text == null) {
-            throw new Error('text parameter is required');
+            throw new Error('需要文本参数');
           }
           elementHandle = await this.get_highlight_element(page, params.index, true);
           if (elementHandle) {
@@ -132,7 +132,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
           break;
         case 'click':
           if (params.index == null) {
-            throw new Error('index parameter is required');
+            throw new Error('需要索引参数');
           }
           elementHandle = await this.get_highlight_element(page, params.index);
           if (elementHandle) {
@@ -149,7 +149,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
           break;
         case 'right_click':
           if (params.index == null) {
-            throw new Error('index parameter is required');
+            throw new Error('需要索引参数');
           }
           elementHandle = await this.get_highlight_element(page, params.index);
           if (elementHandle) {
@@ -166,7 +166,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
           break;
         case 'double_click':
           if (params.index == null) {
-            throw new Error('index parameter is required');
+            throw new Error('需要索引参数');
           }
           elementHandle = await this.get_highlight_element(page, params.index);
           if (elementHandle) {
@@ -183,7 +183,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
           break;
         case 'scroll_to':
           if (params.index == null) {
-            throw new Error('index parameter is required');
+            throw new Error('需要索引参数');
           }
           result = await page.evaluate((highlightIndex) => {
             let element = (window as any).get_highlight_element(highlightIndex);
@@ -205,16 +205,16 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
           break;
         case 'get_dropdown_options':
           if (params.index == null) {
-            throw new Error('index parameter is required');
+            throw new Error('需要索引参数');
           }
           result = await this.get_dropdown_options(page, params.index);
           break;
         case 'select_dropdown_option':
           if (params.index == null) {
-            throw new Error('index parameter is required');
+            throw new Error('需要索引参数');
           }
           if (params.text == null) {
-            throw new Error('text parameter is required');
+            throw new Error('需要文本参数');
           }
           result = await this.select_dropdown_option(page, params.index, params.text);
           break;
@@ -244,7 +244,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
           break;
         default:
           throw Error(
-            `Invalid parameters. The "${params.action}" value is not included in the "action" enumeration.`
+            `参数无效。${params.action} 值未包含在 “action” 枚举中。`
           );
       }
       if (result) {
@@ -367,7 +367,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
       (param: any) => {
         let select = (window as any).get_highlight_element(param.highlightIndex);
         if (!select || select.tagName.toUpperCase() !== 'SELECT') {
-          return { success: false, error: 'Select not found or invalid element type' };
+          return { success: false, error: '选择未找到或元素类型无效' };
         }
         const option = Array.from(select.options).find(
           (opt: any) => opt.text.trim() === param.text
@@ -375,7 +375,7 @@ export class BrowserUse implements Tool<BrowserUseParam, BrowserUseResult> {
         if (!option) {
           return {
             success: false,
-            error: 'Option not found',
+            error: '选择未找到',
             availableOptions: Array.from(select.options).map((o: any) => o.text.trim()),
           };
         }

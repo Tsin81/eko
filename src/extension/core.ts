@@ -28,7 +28,7 @@ export function loadTools(): Map<string, Tool<any, any>> {
         let instance = new tool();
         toolsMap.set(instance.name || key, instance);
       } catch (e) {
-        console.error(`Failed to instantiate ${key}:`, e);
+        console.error(`初始化 ${key} 失败：`, e);
       }
     }
   }

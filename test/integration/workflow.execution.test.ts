@@ -8,27 +8,27 @@ dotenv.config();
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!ANTHROPIC_API_KEY) {
-  throw new Error('ANTHROPIC_API_KEY environment variable is required for integration tests');
+  throw new Error('集成测试需要 ANTHROPIC_API_KEY 环境变量');
 }
 
-// Only run these tests if explicitly enabled
+// 仅在明确启用的情况下运行这些测试
 const ENABLE_INTEGRATION_TESTS = process.env.ENABLE_INTEGRATION_TESTS === 'true';
 const describeIntegration = ENABLE_INTEGRATION_TESTS ? describe : describe.skip;
 
-// Addition tool
+// 添加工具
 class AddTool implements Tool<any, any> {
   name = 'add';
-  description = 'Add two numbers together.';
+  description = '将两个数字相加。';
   input_schema = {
     type: 'object',
     properties: {
       a: {
         type: 'number',
-        description: 'First number'
+        description: '第一个数字'
       } as const,
       b: {
         type: 'number',
-        description: 'Second number'
+        description: '第二个数字'
       } as const
     } as unknown as Properties,
     required: ['a', 'b']
@@ -40,20 +40,20 @@ class AddTool implements Tool<any, any> {
   }
 }
 
-// Multiplication tool
+// 乘法工具
 class MultiplyTool implements Tool<any, any> {
   name = 'multiply';
-  description = 'Multiply two numbers together.';
+  description = '两个数字相乘。';
   input_schema = {
     type: 'object',
     properties: {
       a: {
         type: 'number',
-        description: 'First number'
+        description: '第一个数字'
       } as const,
       b: {
         type: 'number',
-        description: 'Second number'
+        description: '第二个数字'
       } as const
     } as unknown as Properties,
     required: ['a', 'b']
@@ -65,16 +65,16 @@ class MultiplyTool implements Tool<any, any> {
   }
 }
 
-// Echo tool to display results
+// 用于显示结果的 Echo 工具
 class EchoTool implements Tool<any, any> {
   name = 'echo';
-  description = 'Display or print a message or value.';
+  description = '显示/打印信息或数值。';
   input_schema = {
     type: 'object',
     properties: {
       message: {
         type: 'string',
-        description: 'Message or value to display'
+        description: '要显示的信息或数值'
       } as const
     } as unknown as Properties,
     required: ['message']
@@ -87,7 +87,7 @@ class EchoTool implements Tool<any, any> {
   }
 }
 
-describeIntegration('Minimal Workflow Integration', () => {
+describeIntegration('最小化工作流集成', () => {
   let llmProvider: ClaudeProvider;
   let context: ExecutionContext;
   let tools: Tool<any, any>[];
@@ -100,43 +100,44 @@ describeIntegration('Minimal Workflow Integration', () => {
   beforeEach(() => {
   });
 
-  it('should calculate 23 * 45 + 67 using tool chain', async () => {
-    // Create calculation action
+  it('应使用工具链计算 23 * 45 + 67', async () => {
+    // 创建计算操作
     const calculateAction = ActionImpl.createPromptAction(
-      'calculate expression 23 * 45 + 67',
-      'calculate expression 23 * 45 + 67',
+      '计算表达式 23 * 45 + 67',
+      '计算表达式 23 * 45 + 67',
       tools,
       llmProvider,
       { maxTokens: 1000 }
     );
 
-    // Create display action
+    // 创建显示操作
     const displayAction = ActionImpl.createPromptAction(
-      'display result',
-      'display result',
+      '显示结果',
+      '显示结果',
       tools,
       llmProvider,
       { maxTokens: 1000 }
     );
 
-    // Create workflow
+    // 创建工作流
     const workflow = new WorkflowImpl(
       'calc-and-display',
-      'Calculate and Display Workflow',
+      '计算与显示工作流程',
       { workingWindowId: undefined },
     );
 
     workflow.llmProvider = llmProvider;
 
-    // Add calculation node
+    // 添加计算节点
     const calculateNode = {
       id: 'calculate',
-      name: 'Calculate Expression',
+      name: '计算表达式',
       dependencies: [],
       input: {
         type: 'object',
         schema: {},
-        value: null
+        value: null,
+        item: []
       },
       output: {
         type: 'object',
@@ -147,10 +148,10 @@ describeIntegration('Minimal Workflow Integration', () => {
     };
     workflow.addNode(calculateNode);
 
-    // Add display node
+    // 添加显示节点
     workflow.addNode({
       id: 'display',
-      name: 'Display Result',
+      name: '显示结果',
       dependencies: ['calculate'],
       input: {
         type: 'object',
@@ -165,21 +166,21 @@ describeIntegration('Minimal Workflow Integration', () => {
       action: displayAction
     });
 
-    // Execute workflow
+    // 执行工作流
     await workflow.execute();
 
-    // Log all context variables
-    console.log('Context variables:', Object.fromEntries(workflow.variables));
+    // 记录所有上下文变量
+    console.log('上下文变量：', Object.fromEntries(workflow.variables));
 
-    // Find numerical result in context variables
+    // 在上下文变量中查找数值结果
     const numberResults = Array.from(workflow.variables.entries())
       .filter(([_, value]) => typeof value === 'number');
 
     expect(numberResults.length).toBeGreaterThan(0);
 
-    // Find the final calculation result (1102)
+    // 找出最终计算结果 (1102)
     const finalResult = numberResults.find(([_, value]) => value === 1102);
     expect(finalResult).toBeDefined();
-    console.log('Found result:', finalResult);
+    console.log('找到结果：', finalResult);
   }, 60000);
 });

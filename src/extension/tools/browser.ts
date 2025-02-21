@@ -6,7 +6,7 @@ export async function type(
   text: string,
   coordinate?: [number, number]
 ): Promise<any> {
-  console.log('Sending type message to tab:', tabId, { text, coordinate });
+  console.log('向标签页发送类型信息：', tabId, { text, coordinate });
   try {
     if (!coordinate) {
       coordinate = (await cursor_position(tabId)).coordinate;
@@ -17,10 +17,10 @@ export async function type(
       text,
       coordinate,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send type message:', e);
+    console.error('发送类型信息失败：', e);
     throw e;
   }
 }
@@ -31,7 +31,7 @@ export async function type_by(
   xpath?: string,
   highlightIndex?: number
 ): Promise<any> {
-  console.log('Sending type message to tab:', tabId, { text, xpath, highlightIndex });
+  console.log('向标签页发送类型信息：', tabId, { text, xpath, highlightIndex });
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       type: 'computer:type',
@@ -39,16 +39,16 @@ export async function type_by(
       xpath,
       highlightIndex,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send type message:', e);
+    console.error('发送类型信息失败：', e);
     throw e;
   }
 }
 
 export async function clear_input(tabId: number, coordinate?: [number, number]): Promise<any> {
-  console.log('Sending clear_input message to tab:', tabId, { coordinate });
+  console.log('向标签页发送 clear_input 信息：', tabId, { coordinate });
   try {
     if (!coordinate) {
       coordinate = (await cursor_position(tabId)).coordinate;
@@ -59,10 +59,10 @@ export async function clear_input(tabId: number, coordinate?: [number, number]):
       text: '',
       coordinate,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send clear_input message:', e);
+    console.error('发送 clear_input 信息失败：', e);
     throw e;
   }
 }
@@ -72,7 +72,7 @@ export async function clear_input_by(
   xpath?: string,
   highlightIndex?: number
 ): Promise<any> {
-  console.log('Sending clear_input_by message to tab:', tabId, { xpath, highlightIndex });
+  console.log('向标签页发送 clear_input_by 信息：', tabId, { xpath, highlightIndex });
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       type: 'computer:type',
@@ -80,31 +80,31 @@ export async function clear_input_by(
       xpath,
       highlightIndex,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send clear_input_by message:', e);
+    console.error('发送 clear_input_by 信息失败：', e);
     throw e;
   }
 }
 
 export async function mouse_move(tabId: number, coordinate: [number, number]): Promise<any> {
-  console.log('Sending mouse_move message to tab:', tabId, { coordinate });
+  console.log('向标签页发送 mouse_move 信息：', tabId, { coordinate });
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       type: 'computer:mouse_move',
       coordinate,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send mouse_move message:', e);
+    console.error('发送 mouse_move 信息失败：', e);
     throw e;
   }
 }
 
 export async function left_click(tabId: number, coordinate?: [number, number]): Promise<any> {
-  console.log('Sending left_click message to tab:', tabId, { coordinate });
+  console.log('向标签页发送 left_click 信息：', tabId, { coordinate });
   try {
     if (!coordinate) {
       coordinate = (await cursor_position(tabId)).coordinate;
@@ -113,10 +113,10 @@ export async function left_click(tabId: number, coordinate?: [number, number]): 
       type: 'computer:left_click',
       coordinate,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send left_click message:', e);
+    console.error('发送 send left_click 信息失败：', e);
     throw e;
   }
 }
@@ -126,23 +126,23 @@ export async function left_click_by(
   xpath?: string,
   highlightIndex?: number
 ): Promise<any> {
-  console.log('Sending left_click_by message to tab:', tabId, { xpath, highlightIndex });
+  console.log('向标签页发送 left_click_by message 信息：', tabId, { xpath, highlightIndex });
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       type: 'computer:left_click',
       xpath,
       highlightIndex,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send left_click_by message:', e);
+    console.error('发送 left_click_by 信息失败：', e);
     throw e;
   }
 }
 
 export async function right_click(tabId: number, coordinate?: [number, number]): Promise<any> {
-  console.log('Sending right_click message to tab:', tabId, { coordinate });
+  console.log('向标签页发送 right_click message 信息：', tabId, { coordinate });
   try {
     if (!coordinate) {
       coordinate = (await cursor_position(tabId)).coordinate;
@@ -151,10 +151,10 @@ export async function right_click(tabId: number, coordinate?: [number, number]):
       type: 'computer:right_click',
       coordinate,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send right_click message:', e);
+    console.error('发送 right_click 失败：', e);
     throw e;
   }
 }
@@ -164,23 +164,23 @@ export async function right_click_by(
   xpath?: string,
   highlightIndex?: number
 ): Promise<any> {
-  console.log('Sending right_click_by message to tab:', tabId, { xpath, highlightIndex });
+  console.log('向标签页发送 right_click_by 信息：', tabId, { xpath, highlightIndex });
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       type: 'computer:right_click',
       xpath,
       highlightIndex,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send right_click_by message:', e);
+    console.error('发送 right_click_by 信息失败：', e);
     throw e;
   }
 }
 
 export async function double_click(tabId: number, coordinate?: [number, number]): Promise<any> {
-  console.log('Sending double_click message to tab:', tabId, { coordinate });
+  console.log('向标签页发送 double_click 信息：', tabId, { coordinate });
   try {
     if (!coordinate) {
       coordinate = (await cursor_position(tabId)).coordinate;
@@ -189,10 +189,10 @@ export async function double_click(tabId: number, coordinate?: [number, number])
       type: 'computer:double_click',
       coordinate,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send double_click message:', e);
+    console.error('发送 double_click 信息失败：', e);
     throw e;
   }
 }
@@ -202,23 +202,23 @@ export async function double_click_by(
   xpath?: string,
   highlightIndex?: number
 ): Promise<any> {
-  console.log('Sending double_click_by message to tab:', tabId, { xpath, highlightIndex });
+  console.log('向标签页发送 double_click_by 信息：', tabId, { xpath, highlightIndex });
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       type: 'computer:double_click',
       xpath,
       highlightIndex,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send double_click_by message:', e);
+    console.error('发送 double_click_by 信息失败：', e);
     throw e;
   }
 }
 
 export async function screenshot(windowId: number, compress?: boolean): Promise<ScreenshotResult> {
-  console.log('Taking screenshot of window:', windowId, { compress });
+  console.log('对窗口进行截图：', windowId, { compress });
   try {
     let dataUrl;
     if (compress) {
@@ -241,10 +241,10 @@ export async function screenshot(windowId: number, compress?: boolean): Promise<
         data: data,
       },
     } as ScreenshotResult;
-    console.log('Got screenshot result:', result);
+    console.log('收到截屏结果：', result);
     return result;
   } catch (e) {
-    console.error('Failed to take screenshot:', e);
+    console.error('截屏失败：', e);
     throw e;
   }
 }
@@ -254,7 +254,7 @@ export async function compress_image(
   scale: number = 0.8,
   quality: number = 0.8
 ): Promise<string> {
-  console.log('Compressing image', { scale, quality });
+  console.log('压缩图像', { scale, quality });
   try {
     const bitmap = await createImageBitmap(await (await fetch(dataUrl)).blob());
     let width = bitmap.width * scale;
@@ -270,19 +270,19 @@ export async function compress_image(
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        console.log('Got compressed image result:', result);
+        console.log('收到压缩后图像结果：', result);
         resolve(result);
       };
       reader.readAsDataURL(blob);
     });
   } catch (e) {
-    console.error('Failed to compress image:', e);
+    console.error('压缩图像失败：', e);
     throw e;
   }
 }
 
 export async function scroll_to(tabId: number, coordinate: [number, number]): Promise<any> {
-  console.log('Sending scroll_to message to tab:', tabId, { coordinate });
+  console.log('向标签页发送 scroll_to 信息：', tabId, { coordinate });
   try {
     let from_coordinate = (await cursor_position(tabId)).coordinate;
     const response = await chrome.tabs.sendMessage(tabId, {
@@ -290,10 +290,10 @@ export async function scroll_to(tabId: number, coordinate: [number, number]): Pr
       from_coordinate,
       to_coordinate: coordinate,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send scroll_to message:', e);
+    console.error('发送 scroll_to 失败：', e);
     throw e;
   }
 }
@@ -303,17 +303,17 @@ export async function scroll_to_by(
   xpath?: string,
   highlightIndex?: number
 ): Promise<any> {
-  console.log('Sending scroll_to_by message to tab:', tabId, { xpath, highlightIndex });
+  console.log('向标签页发送 scroll_to_by 信息：', tabId, { xpath, highlightIndex });
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       type: 'computer:scroll_to',
       xpath,
       highlightIndex,
     });
-    console.log('Got response:', response);
+    console.log('收到响应：', response);
     return response;
   } catch (e) {
-    console.error('Failed to send scroll_to_by message:', e);
+    console.error('发送 scroll_to_by 信息失败：', e);
     throw e;
   }
 }

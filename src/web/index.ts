@@ -1,10 +1,10 @@
-// core
+// 核心
 export * from './core';
 
-// tools
+// 工具
 import * as tools from './tools';
 export { tools };
 
-// browser
+// 浏览器
 import * as browser from './tools/browser';
 export { browser };

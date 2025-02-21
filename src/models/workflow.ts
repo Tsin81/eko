@@ -29,13 +29,13 @@ export class WorkflowImpl implements Workflow {
   async cancel(): Promise<void> {
     this.abort = true;
     for (const controller of this.abortControllers.values()) {
-      controller.abort("Workflow cancelled");
+      controller.abort("工作流程取消");
     }
   }
 
   async execute(callback?: WorkflowCallback): Promise<NodeOutput[]> {
     if (!this.validateDAG()) {
-      throw new Error("Invalid workflow: Contains circular dependencies");
+      throw new Error("工作流程无效： 包含循环依赖关系");
     }
     this.abort = false;
 
@@ -46,21 +46,21 @@ export class WorkflowImpl implements Workflow {
 
     const executeNode = async (nodeId: string): Promise<void> => {
       if (this.abort) {
-        throw new Error("Abort");
+        throw new Error("终止");
       }
       if (executed.has(nodeId)) {
         return;
       }
 
       if (executing.has(nodeId)) {
-        throw new Error(`Circular dependency detected at node: ${nodeId}`);
+        throw new Error(`节点检测到循环依赖关系： ${nodeId}`);
       }
 
       const node = this.getNode(nodeId);
       const abortController = new AbortController();
       this.abortControllers.set(nodeId, abortController);
 
-      // Execute the node's action
+      // 执行节点操作
       const context: ExecutionContext = {
         __skip: false,
         __abort: false,
@@ -74,21 +74,21 @@ export class WorkflowImpl implements Workflow {
         next: () => context.__skip = true,
         abortAll: () => {
           this.abort = context.__abort = true;
-          // Abort all running tasks
+          // 中止所有正在运行的任务
           for (const controller of this.abortControllers.values()) {
-            controller.abort("Workflow cancelled");
+            controller.abort("工作流程取消");
           }
         },
         signal: abortController.signal
       };
 
       executing.add(nodeId);
-      // Execute dependencies first
+      // 优先执行依赖项
       for (const depId of node.dependencies) {
         await executeNode(depId);
       }
 
-      // Prepare input by gathering outputs from dependencies
+      // 通过从依赖关系中收集输出来准备输入
       const input: NodeInput = { items: [] };
       for (const depId of node.dependencies) {
         const depNode = this.getNode(depId);
@@ -96,11 +96,11 @@ export class WorkflowImpl implements Workflow {
       }
       node.input = input;
 
-      // Run pre-execution hooks and execute action
+      // 运行预执行钩子并执行操作
       callback && await callback.hooks.beforeSubtask?.(node, context);
 
       if (context.__abort) {
-        throw new Error("Abort");
+        throw new Error("终止");
       } else if (context.__skip) {
         return;
       }
@@ -113,7 +113,7 @@ export class WorkflowImpl implements Workflow {
       callback && await callback.hooks.afterSubtask?.(node, context, node.output?.value);
     };
 
-    // Execute all terminal nodes (nodes with no dependents)
+    // 执行所有终端节点（无依赖节点）
     const terminalNodes = this.nodes.filter(node =>
       !this.nodes.some(n => n.dependencies.includes(node.id))
     );
@@ -127,7 +127,7 @@ export class WorkflowImpl implements Workflow {
 
   addNode(node: WorkflowNode): void {
     if (this.nodes.some(n => n.id === node.id)) {
-      throw new Error(`Node with id ${node.id} already exists`);
+      throw new Error(`id为 ${node.id} 的节点已存在`);
     }
     this.nodes.push(node);
   }
@@ -135,16 +135,16 @@ export class WorkflowImpl implements Workflow {
   removeNode(nodeId: string): void {
     const index = this.nodes.findIndex(n => n.id === nodeId);
     if (index === -1) {
-      throw new Error(`Node with id ${nodeId} not found`);
+      throw new Error(`id为 ${nodeId} 的节点未找到`);
     }
 
-    // Check if any nodes depend on this one
+    // 检查是否有节点依赖于此节点
     const dependentNodes = this.nodes.filter(n =>
       n.dependencies.includes(nodeId)
     );
     if (dependentNodes.length > 0) {
       throw new Error(
-        `Cannot remove node ${nodeId}: Nodes ${dependentNodes.map(n => n.id).join(", ")} depend on it`
+        `无法删除节点 ${nodeId}：依赖于它的节点包括 ${dependentNodes.map(n => n.id).join(", ")}`
       );
     }
 
@@ -154,7 +154,7 @@ export class WorkflowImpl implements Workflow {
   getNode(nodeId: string): WorkflowNode {
     const node = this.nodes.find(n => n.id === nodeId);
     if (!node) {
-      throw new Error(`Node with id ${nodeId} not found`);
+      throw new Error(`id为 ${nodeId} 的节点未找到`);
     }
     return node;
   }
