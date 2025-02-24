@@ -1,18 +1,21 @@
-# Eko JSON Workflow DSL
+# Eko JSON 工作流 DSL
 
-## Overview
-A JSON-based Domain Specific Language for defining AI agent workflows, optimized for LLM generation and programmatic manipulation.
+## 概览
 
-## Design Goals
-1. Schema-compliant JSON structure
-2. Direct mapping to runtime types
-3. Easy for LLMs to generate and modify
-4. Validation through JSON Schema
-5. Bidirectional conversion with runtime objects
+一种基于 JSON 的特定领域语言，用于定义人工智能代理工作流，并针对 LLM 生成和编程操作进行了优化。
 
-## JSON Structure
+## 设计目标
 
-### Basic Structure
+1. Schema 兼容的 JSON 结构
+2. 直接映射到运行时类型
+3. 便于 LLM 生成和修改
+4. 通过 JSON Schema 进行验证
+5. 与运行时对象双向转换
+
+JSON 结构
+
+### 基础结构
+
 ```json
 {
   "version": "1.0",
@@ -26,7 +29,8 @@ A JSON-based Domain Specific Language for defining AI agent workflows, optimized
 }
 ```
 
-### Node Structure
+### 节点结构
+
 ```json
 {
   "id": "string",
@@ -49,37 +53,42 @@ A JSON-based Domain Specific Language for defining AI agent workflows, optimized
 }
 ```
 
-## Variable Resolution
-- Use JSON Pointer syntax for referencing
-- Example: "/nodes/0/output/value" refers to first node's output value
-- Variables in params use ${variableName} syntax
+## 变量解析
 
-## Type System
-- Use JSON Schema for type definitions
-- Runtime type validation through schema
-- Support for primitives and complex objects
-- Schema stored with type definitions
+- 使用 JSON 指针语法进行引用
+- 例如 “/nodes/0/output/value "指首节点的输出值
+- 参数中的变量使用 ${variableName} 语法
 
-## Validation Rules
-1. All node IDs must be unique
-2. Dependencies must reference existing nodes
-3. No circular dependencies
-4. Type compatibility between connected nodes
-5. All required parameters must be provided
-6. All tools must be registered and available
+## 类型系统
 
-## Error Types
-1. Schema Validation Errors: Invalid JSON structure
-2. Reference Errors: Invalid node references
-3. Type Errors: Incompatible types between nodes
-4. Tool Errors: Unavailable or invalid tools
+- 使用 JSON Schema 进行类型定义
+- 通过 Schema 进行运行时类型验证
+- 支持基元（primitives）和复杂（complex）对象
+- 存储有类型定义的 Schema
 
-## Example Workflow
+## 验证规则
+
+1. 所有节点 ID 必须是唯一的
+2. 依赖关系必须引用现有节点
+3. 无循环依赖关系
+4. 相连节点之间的类型兼容性
+5. 必须提供所有必需参数
+6. 所有工具必须注册并可用
+
+## 错误类型
+
+1. Schema 验证错误：无效的 JSON 结构
+2. 引用错误：无效节点引用
+3. 类型错误：节点之间的类型不兼容
+4. 工具错误：工具不可用或无效
+
+## 示例工作流
+
 ```json
 {
   "version": "1.0",
   "id": "search-workflow",
-  "name": "Web Search Workflow",
+  "name": "网页搜索工作流",
   "nodes": [
     {
       "id": "search",
