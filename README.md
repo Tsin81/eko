@@ -29,7 +29,7 @@ Eko（发音类似于 “echo” ）是一个生产就绪的 JavaScript 框架�
 npm install @eko-ai/eko
 ```
 
-> 重要提示： 以下示例代码不能直接执行。请参阅 [Eko 快速入门指南](https://eko.fellou.ai/docs/getting-started/quickstart/) 指南，了解如何运行它。
+> 重要提示： 以下示例代码不能直接执行。请参阅 [Eko 快速入门指南](https://eko.fellou.ai/docs/getting-started/quickstart/)，了解如何运行它。
 
 ```typescript
 import { Eko } from '@eko-ai/eko';
